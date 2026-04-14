@@ -22,9 +22,9 @@ export default {
           glass: 'rgba(255,255,255,0.04)',
         },
         accent: {
-          DEFAULT: '#7C6FFF',
-          soft: '#A99FFF',
-          glow: 'rgba(124,111,255,0.15)',
+          DEFAULT: '#0EA5E9',
+          soft: '#38BDF8',
+          glow: 'rgba(14,165,233,0.15)',
         },
         muted: '#6B7280',
         border: 'rgba(255,255,255,0.08)',
