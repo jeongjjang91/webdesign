@@ -73,6 +73,9 @@
 </template>
 
 <script setup>
+import { useReveal } from '../composables/useReveal'
+useReveal()
+
 const steps = [
   {
     duration: '1~3일차',

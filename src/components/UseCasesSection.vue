@@ -89,6 +89,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useReveal } from '../composables/useReveal'
+useReveal()
 
 const active = ref('dev')
 const activeUsecase = ref(0)

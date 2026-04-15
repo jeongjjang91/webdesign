@@ -130,6 +130,9 @@
 </template>
 
 <script setup>
+import { useReveal } from '../composables/useReveal'
+useReveal()
+
 const docs = [
   { icon: '📄', name: '2025 마케팅 전략 v3.docx', date: '3일 전', relevance: '98%' },
   { icon: '📊', name: 'Q1 성과 보고서.xlsx', date: '1주 전', relevance: '91%' },

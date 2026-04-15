@@ -59,6 +59,9 @@
 </template>
 
 <script setup>
+import { useReveal } from '../composables/useReveal'
+useReveal()
+
 const testimonials = [
   {
     quote: '회의록 작성에 하루 1~2시간 쓰던 게 이제 10분도 안 걸려요. 팀원들 모두 "왜 이걸 이제 쓰냐"고 할 정도입니다.',

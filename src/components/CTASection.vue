@@ -64,3 +64,8 @@
     </div>
   </section>
 </template>
+
+<script setup>
+import { useReveal } from '../composables/useReveal'
+useReveal()
+</script>

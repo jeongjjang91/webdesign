@@ -18,6 +18,9 @@
 </template>
 
 <script setup>
+import { useReveal } from '../composables/useReveal'
+useReveal()
+
 const companies = [
   'Kakao Enterprise', 'Naver Cloud', 'KT DS', 'Samsung SDS',
   'LG CNS', 'SK C&C', 'Hyundai AutoEver', 'Lotte Data',

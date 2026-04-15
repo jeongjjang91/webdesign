@@ -171,6 +171,9 @@
 </template>
 
 <script setup>
+import { useReveal } from '../composables/useReveal'
+useReveal()
+
 const stats = [
   { value: '2,400+', label: '활성 사용자' },
   { value: '94%', label: '업무 시간 절감' },

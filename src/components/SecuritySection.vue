@@ -100,6 +100,9 @@
 </template>
 
 <script setup>
+import { useReveal } from '../composables/useReveal'
+useReveal()
+
 const securityItems = [
   {
     icon: '🏠', title: '완전 격리 온프레미스',
