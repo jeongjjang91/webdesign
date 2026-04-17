@@ -13,7 +13,7 @@
             <span class="text-gradient">절대 외부로 나가지 않습니다</span>
           </h2>
           <p class="text-[#9CA3B0] leading-relaxed mb-8">
-            ChatGPT 같은 외부 서비스와 달리, AiDesk는 사내 인프라 위에서 완전 격리된 환경으로 운영됩니다. 모든 데이터는 사내 서버에만 존재합니다.
+            ChatGPT 같은 외부 서비스와 달리, TC Assistant는 사내 인프라 위에서 완전 격리된 환경으로 운영됩니다. 모든 데이터는 사내 서버에만 존재합니다.
           </p>
 
           <div class="space-y-4">

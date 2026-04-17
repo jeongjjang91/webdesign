@@ -5,15 +5,11 @@
         <!-- Brand -->
         <div>
           <div class="flex items-center gap-2.5 mb-4">
-            <div class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M2 5h12M2 8h9M2 11h6" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <span class="font-semibold text-[15px] text-white">AiDesk</span>
+            <GatewayFlowIcon size="sm" label="TC Assistant" class="flex-shrink-0" />
+            <span class="font-semibold text-[15px] text-white">TC Assistant</span>
           </div>
           <p class="text-[13px] text-muted leading-relaxed max-w-[220px]">
-            사내 데이터를 완전히 이해하는 기업 전용 AI 어시스턴트 플랫폼
+            사내 데이터를 완전히 이해하는 기업 전용 TC 어시스턴트 플랫폼
           </p>
           <div class="flex gap-3 mt-5">
             <a v-for="social in socials" :key="social.label" href="#"
@@ -40,7 +36,7 @@
 
       <!-- Bottom bar -->
       <div class="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/6 gap-4">
-        <p class="text-[12px] text-muted">© 2025 AiDesk. All rights reserved.</p>
+        <p class="text-[12px] text-muted">© 2025 TC Assistant. All rights reserved.</p>
         <div class="flex gap-5">
           <a href="#" class="text-[12px] text-muted hover:text-white transition-colors">개인정보처리방침</a>
           <a href="#" class="text-[12px] text-muted hover:text-white transition-colors">이용약관</a>
@@ -52,6 +48,8 @@
 </template>
 
 <script setup>
+import GatewayFlowIcon from './GatewayFlowIcon.vue'
+
 const socials = [
   { label: 'Blog' },
   { label: 'GitHub' },

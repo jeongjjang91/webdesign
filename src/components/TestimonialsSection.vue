@@ -96,7 +96,7 @@ const testimonials = [
     avatarClass: 'bg-orange-500/20 text-orange-400',
   },
   {
-    quote: '보안 때문에 외부 ChatGPT 사용을 금지했는데, 사내 AiDesk 도입 후 직원들이 오히려 더 적극적으로 AI를 활용하고 있어요.',
+    quote: '보안 때문에 외부 ChatGPT 사용을 금지했는데, 사내 TC Assistant 도입 후 직원들이 오히려 더 적극적으로 AI를 활용하고 있어요.',
     name: '정태준',
     role: 'CTO',
     company: '기술 경영진',

@@ -13,7 +13,7 @@
 
       <h2 class="text-5xl font-bold tracking-tight mb-6 reveal reveal-delay-1">
         지금 바로 시작하세요.<br />
-        <span class="text-gradient">2주 무료 체험.</span>
+        <span class="text-gradient">TC 어시스턴트 도입 상담.</span>
       </h2>
 
       <p class="text-[#9CA3B0] text-[17px] leading-relaxed mb-10 reveal reveal-delay-2">
@@ -54,7 +54,7 @@
         <button
           class="w-full bg-accent text-white font-semibold py-3.5 rounded-xl hover:bg-accent/90 transition-all duration-200 hover:shadow-xl hover:shadow-accent/25 hover:-translate-y-0.5 text-[15px]"
         >
-          무료 체험 신청하기 →
+          도입 상담 신청하기 →
         </button>
       </div>
 

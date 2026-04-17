@@ -14,7 +14,7 @@
           </h2>
         </div>
         <p class="text-[#9CA3B0] text-[14px] max-w-xs leading-relaxed">
-          개발팀부터 인사팀까지, 역할에 맞는 AI 어시스턴트를 바로 사용하세요.
+          개발팀부터 인사팀까지, 역할에 맞는 TC 어시스턴트를 바로 사용하세요.
         </p>
       </div>
 
@@ -69,11 +69,7 @@
               </div>
             </div>
             <div class="flex gap-2.5">
-              <div class="w-6 h-6 rounded-md bg-accent/20 flex-shrink-0 flex items-center justify-center mt-0.5">
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                  <path d="M2 5h12M2 8h9" stroke="#A99FFF" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-              </div>
+              <GatewayFlowIcon size="sm" label="TC Assistant" class="flex-shrink-0 mt-0.5" />
               <div class="glass-card rounded-2xl rounded-tl-sm px-4 py-3 flex-1">
                 <p class="text-[13px] text-[#C0C0D0] leading-relaxed whitespace-pre-line">
                   {{ currentDept.usecases[activeUsecase].exampleA }}
@@ -89,6 +85,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import GatewayFlowIcon from './GatewayFlowIcon.vue'
 import { useReveal } from '../composables/useReveal'
 useReveal()
 
