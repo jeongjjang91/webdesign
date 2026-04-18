@@ -8,11 +8,11 @@
             <span class="text-xs font-semibold text-accent/90">TC Assistant Dashboard</span>
           </div>
           <h1 class="text-4xl font-bold leading-tight tracking-tight lg:text-5xl">
-            업무 흐름을 한눈에<br />
+            TC 정보를 한눈에<br />
             확인하는 대시보드
           </h1>
           <p class="mt-4 max-w-[620px] text-[15px] leading-relaxed text-[#9CA3B0]">
-            부서, 상태, 우선순위 조건을 조합해 요청 현황을 빠르게 확인하고 필요한 작업만 골라볼 수 있습니다.
+            TC 정보를 빠르게 확인하고, 필요한 내용만 골라 효율적으로 살펴볼 수 있습니다.
           </p>
         </div>
 
@@ -28,9 +28,9 @@
         <aside class="xl:sticky xl:top-8 xl:self-start">
           <div class="rounded-lg border border-white/[0.08] bg-white/[0.04] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
             <div class="px-2 pb-3 pt-1">
-              <p class="text-[11px] font-semibold uppercase text-[#6B7280]">대시보드 메뉴</p>
+              <p class="text-[14px] font-semibold uppercase text-[#6B7280]">메뉴</p>
             </div>
-            <nav class="space-y-1">
+            <nav class="space-y-2">
               <button
                 v-for="menu in dashboardMenus"
                 :key="menu.id"

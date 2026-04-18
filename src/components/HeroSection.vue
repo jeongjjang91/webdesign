@@ -48,9 +48,9 @@
           <div class="relative glass-card rounded-2xl p-1 inner-glow glow-accent animate-float">
           <!-- Chat header -->
           <div class="flex items-center gap-3 px-4 py-3 border-b border-white/6">
-            <GatewayFlowIcon size="lg" label="TC AI Assistant" class="flex-shrink-0" />
+            <TcAiBotIcon size="lg" label="TC AI Bot" class="flex-shrink-0" />
             <div>
-              <div class="text-[13px] font-semibold text-white">TC AI Assistant</div>
+              <div class="text-[13px] font-semibold text-white">TC AI Bot</div>
               <div class="text-[11px] text-emerald-400 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
                 온라인
@@ -74,7 +74,7 @@
 
             <!-- AI response -->
             <div class="flex gap-2.5">
-              <GatewayFlowIcon size="sm" label="TC AI Assistant" class="flex-shrink-0 mt-0.5" />
+              <TcAiBotIcon size="sm" label="TC AI Bot" class="flex-shrink-0 mt-0.5" />
               <div class="glass-card rounded-2xl rounded-tl-sm px-4 py-3 max-w-[80%]">
                 <p class="text-[13px] text-white/80 leading-relaxed mb-2">📋 <strong class="text-white">핵심 결정사항 3가지</strong></p>
                 <ul class="text-[12px] text-[#9CA3B0] space-y-1.5">
@@ -94,7 +94,7 @@
 
             <!-- Typing indicator -->
             <div class="flex gap-2.5 items-end">
-              <GatewayFlowIcon size="sm" label="TC AI Assistant" class="flex-shrink-0" />
+              <TcAiBotIcon size="sm" label="TC AI Bot" class="flex-shrink-0" />
               <div class="glass-card rounded-2xl rounded-tl-sm px-4 py-3">
                 <div class="flex gap-1 items-center h-4">
                   <div class="w-1.5 h-1.5 rounded-full bg-accent/60 animate-bounce" style="animation-delay:0ms"></div>
@@ -216,7 +216,7 @@
 <script setup>
 import { onUnmounted, ref } from 'vue'
 import { useReveal } from '../composables/useReveal'
-import GatewayFlowIcon from './GatewayFlowIcon.vue'
+import TcAiBotIcon from './TcAiBotIcon.vue'
 useReveal()
 
 const emit = defineEmits(['navigate'])

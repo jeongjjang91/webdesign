@@ -2,9 +2,9 @@
   <div class="flex flex-col h-full bg-[#0A0A0F]">
     <!-- Header -->
     <div class="px-6 py-4 border-b border-white/[0.06] flex items-center gap-3 flex-shrink-0">
-      <GatewayFlowIcon size="md" label="TC AI Assistant" class="flex-shrink-0" />
+      <TcAiBotIcon size="md" label="TC AI Bot" class="flex-shrink-0" />
       <div>
-        <p class="text-sm font-semibold text-white">TC AI Assistant</p>
+        <p class="text-sm font-semibold text-white">TC AI Bot</p>
         <p class="text-xs text-muted">스트리밍 응답 지원</p>
       </div>
     </div>
@@ -27,10 +27,10 @@
             class="w-4 h-4 text-accent"
           />
         </div>
-        <GatewayFlowIcon
+        <TcAiBotIcon
           v-else
           size="sm"
-          label="TC AI Assistant"
+          label="TC AI Bot"
           class="flex-shrink-0 mt-0.5"
         />
 
@@ -146,9 +146,9 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, nextTick, onBeforeUnmount, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
-import GatewayFlowIcon from './GatewayFlowIcon.vue'
+import TcAiBotIcon from './TcAiBotIcon.vue'
 
 const props = defineProps({
   initialPrompt: {
@@ -161,7 +161,7 @@ const messages = ref([
   {
     id: 0,
     role: 'assistant',
-    content: 'TC AI Assistant 입니다 무엇을 도와드릴까요?',
+    content: 'TC AI Bot 입니다 무엇을 도와드릴까요?',
     streaming: false,
     renderedContent: '',
     feedback: null,
@@ -175,6 +175,7 @@ const isStreaming = ref(false)
 const messagesEl = ref(null)
 const inputEl = ref(null)
 let demoReplyIndex = 0
+let replyTimer = null
 
 function scrollToBottom() {
   nextTick(() => {
@@ -215,7 +216,7 @@ function sendMessage(textOverride = '') {
   scrollToBottom()
 
   let i = 0
-  const interval = setInterval(() => {
+  replyTimer = setInterval(() => {
     if (i < reply.length) {
       assistantMsg.content += reply[i]
       i++
@@ -223,10 +224,17 @@ function sendMessage(textOverride = '') {
     } else {
       assistantMsg.streaming = false
       isStreaming.value = false
-      clearInterval(interval)
+      clearReplyTimer()
       finalizeAssistantMessage(assistantMsg)
     }
   }, 30)
+}
+
+function clearReplyTimer() {
+  if (replyTimer) {
+    clearInterval(replyTimer)
+    replyTimer = null
+  }
 }
 
 async function finalizeAssistantMessage(message) {
@@ -268,8 +276,12 @@ onMounted(() => {
   }
 })
 
+onBeforeUnmount(() => {
+  clearReplyTimer()
+})
+
 function generateReply(userText) {
-  const textReply = '좋은 질문이에요. TC AI Assistant는 반복되는 문서 정리, 고객 응대 초안, 코드 분석 같은 업무를 빠르게 처리할 수 있도록 도와줍니다. 필요한 결과 형식을 말씀해주시면 그 형식에 맞춰 더 정확하게 정리해드릴게요.'
+  const textReply = '좋은 질문이에요. TC AI Bot은 반복되는 문서 정리, 고객 응대 초안, 코드 분석 같은 업무를 빠르게 처리할 수 있도록 도와줍니다. 필요한 결과 형식을 말씀해주시면 그 형식에 맞춰 더 정확하게 정리해드릴게요.'
   const tableReply = `아래처럼 표로 정리할 수 있습니다.
 
 | 항목 | 담당 | 상태 |

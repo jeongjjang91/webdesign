@@ -5,12 +5,12 @@
 
     <!-- Content area -->
     <main class="ml-[220px] flex-1 h-screen overflow-hidden flex flex-col">
-      <Transition name="fade" mode="out-in">
+      <Transition name="fade" mode="out-in" appear>
         <component
           :is="currentComponent"
-          :key="currentPage"
+          :key="currentComponentKey"
           :initial-prompt="chatInitialPrompt"
-          class="flex-1 overflow-y-auto"
+          class="min-h-0 w-full flex-1 overflow-y-auto"
         />
       </Transition>
     </main>
@@ -34,9 +34,13 @@ import TheFooter from './components/TheFooter.vue'
 
 const currentPage = ref('home')
 const chatInitialPrompt = ref('')
+const chatSessionKey = ref(0)
 
 function navigateTo(page, initialPrompt = '') {
   chatInitialPrompt.value = page === 'chat' ? initialPrompt : ''
+  if (page === 'chat') {
+    chatSessionKey.value += 1
+  }
   currentPage.value = page
 }
 
@@ -67,16 +71,36 @@ const pageMap = {
 }
 
 const currentComponent = computed(() => pageMap[currentPage.value])
+const currentComponentKey = computed(() => (
+  currentPage.value === 'chat'
+    ? `chat-${chatSessionKey.value}`
+    : currentPage.value
+))
 </script>
 
 <style>
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.15s ease;
+  transition:
+    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center top;
+  will-change: opacity, transform;
 }
 
-.fade-enter-from,
+.fade-enter-from {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
 .fade-leave-to {
   opacity: 0;
+  transform: scale(1.02);
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+  transform: scale(1);
 }
 </style>
