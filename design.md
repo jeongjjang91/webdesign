@@ -87,6 +87,41 @@ shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]
 - 대시보드 테이블 컨테이너
 - 로그인 정보 영역
 
+### 3.4 버튼
+
+주요 CTA 버튼은 `src/assets/main.css`의 공용 클래스 `app-cta`를 사용합니다.
+
+기본 구조:
+
+```html
+<button class="app-cta">
+  <span class="app-cta__glow"></span>
+  <span class="app-cta__content">
+    버튼 문구
+    <svg class="app-cta__icon">...</svg>
+  </span>
+</button>
+```
+
+스타일 원칙:
+
+- 기본 버튼은 `bg-slate-900`, `border-white/10`, `rounded-xl`, `font-bold`, `text-white`를 사용합니다.
+- Hover 시 `translateY(-2px)`, `border-color: rgba(14,165,233,0.5)`, `box-shadow: 0 0 20px rgba(14,165,233,0.3)`를 적용합니다.
+- 내부에는 `linear-gradient(to top right, rgba(14,165,233,0.2), transparent)` glow layer를 두고 hover 시 opacity를 올립니다.
+- 오른쪽 화살표 아이콘이 있는 경우 `app-cta__icon`을 사용해 hover 시 `translateX(0.25rem)`로 살짝 이동합니다.
+- 폭이 꽉 차는 버튼은 `app-cta--wide`, 작은 버튼은 `app-cta--sm`, 아이콘 전용 버튼은 `app-cta--icon`을 함께 사용합니다.
+
+현재 적용된 주요 버튼:
+
+- 사이드바 `새로운 채팅`
+- 홈 `채팅 시작`
+- 기능 카드 `로그 다운로드 열기`
+- 채팅 입력 전송
+- 대시보드 `CSV 다운로드`
+- 로그 다운로드 페이지 `다운로드 패키지 생성`
+- 설정 팝업 `저장`
+- CTA 섹션 `도입 상담 신청하기`
+
 ## 4. 전체 레이아웃
 
 ### 4.1 App 구조
@@ -146,6 +181,7 @@ shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]
 - `home`: 홈 화면
 - `dashboard`: 대시보드
 - `features`: 기능
+- `log-download`: 사내 로그 즉시 Download
 - `how`: 적용 계획
 - `usecases`: 활용 사례
 - `testimonials`: 후기
@@ -336,7 +372,35 @@ shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]
 - `채팅 시작` 클릭 시 홈 입력값이 `App.vue`의 `chatInitialPrompt`로 전달됩니다.
 - `ChatbotPage.vue`는 `initialPrompt`를 받아 자동으로 첫 사용자 메시지로 전송합니다.
 
-## 6. 채팅 페이지
+## 6. 기능 페이지
+
+파일:
+
+- `src/components/FeaturesSection.vue`
+- `src/components/LogDownloadPage.vue`
+
+첫 번째 기능 카드는 `사내 문서 즉시 검색 & 요약`에서 `사내 로그 즉시 Download`로 변경했습니다.
+
+반영 내용:
+
+- 제목: `사내 로그 즉시 Download`
+- 설명: 장비, 기간, 로그 유형을 선택해 장애 분석과 VOC 대응에 필요한 원본 로그를 빠르게 확보하는 기능으로 변경
+- 미니 데모는 문서 검색 결과 대신 다운로드 패키지 생성 상태와 로그 파일 목록을 표시
+- 카드 하단에 `로그 다운로드 열기` 버튼 추가
+- 버튼은 공용 CTA 클래스 `app-cta`를 사용합니다. Hover 시 살짝 떠오르고, accent border와 blue glow shadow, 내부 gradient glow layer가 나타납니다.
+- 버튼 클릭 시 `App.vue`의 `navigateTo('log-download')` 흐름으로 새 기능 상세 페이지로 전환
+
+상세 페이지 구성:
+
+- 상단: `기능으로 돌아가기` 버튼, 페이지 제목, 운영 지표
+- 다운로드 조건: 장비, 기간, 로그 유형, 파일 형식, 요청 사유
+- 생성 파일: 패키지에 포함될 로그 파일 미리보기
+- 요청 상태: 권한 확인, 파일 구성, 다운로드 준비 단계
+- 최근 다운로드: 완료된 로그 다운로드 이력
+
+현재는 프론트엔드 예시 화면이며, `다운로드 패키지 생성` 버튼을 누르면 요청 상태만 화면 안에서 갱신됩니다. 실제 다운로드 API는 이후 저장/생성 핸들러에 연결합니다.
+
+## 7. 채팅 페이지
 
 파일: `src/components/ChatbotPage.vue`
 
@@ -351,7 +415,7 @@ shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]
 현재는 데모 응답 배열에서 무작위 응답을 선택합니다.
 실제 API 연결은 아직 없습니다.
 
-## 7. 대시보드 디자인
+## 8. 대시보드 디자인
 
 파일: `src/components/DashboardSection.vue`
 

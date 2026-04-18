@@ -133,9 +133,12 @@
         <button
           type="submit"
           :disabled="!inputText.trim() || isStreaming"
-          class="w-10 h-10 rounded-xl bg-accent hover:bg-accent/90 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 flex-shrink-0"
+          class="app-cta app-cta--icon"
         >
-          <Icon :icon="isStreaming ? 'lucide:square' : 'lucide:send'" class="w-4 h-4 text-white" />
+          <span class="app-cta__glow"></span>
+          <span class="app-cta__content">
+            <Icon :icon="isStreaming ? 'lucide:square' : 'lucide:send'" class="h-4 w-4 text-white" />
+          </span>
         </button>
       </form>
       <p class="mt-2 text-[11px] text-[#7D8594]">

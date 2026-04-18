@@ -24,30 +24,43 @@
           <div class="flex items-start justify-between mb-6">
             <div class="w-11 h-11 rounded-xl bg-accent/15 flex items-center justify-center group-hover:bg-accent/25 transition-colors">
               <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v11m0 0l4-4m-4 4l-4-4M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2"/>
               </svg>
             </div>
             <span class="text-[11px] text-accent/60 font-medium bg-accent/8 rounded-full px-2.5 py-1">인기</span>
           </div>
-          <h3 class="text-xl font-bold mb-2">사내 문서 즉시 검색 & 요약</h3>
+          <h3 class="text-xl font-bold mb-2">사내 로그 즉시 Download</h3>
           <p class="text-[#9CA3B0] text-[14px] leading-relaxed mb-6">
-            Notion, Confluence, Google Drive, SharePoint까지 — 흩어진 사내 문서를 통합 검색하고 핵심만 추출합니다. "지난 분기 마케팅 전략 자료 찾아줘"라고 물으면 됩니다.
+            장비, 기간, 로그 유형을 선택하면 필요한 사내 로그를 즉시 묶어 다운로드합니다. 장애 분석과 VOC 대응에 필요한 원본 데이터를 빠르게 확보합니다.
           </p>
           <!-- Mini demo -->
           <div class="bg-ink-900 rounded-xl p-4 border border-white/6">
             <div class="flex items-center gap-2 mb-3">
               <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
-              <span class="text-[11px] text-muted">실시간 문서 검색 중...</span>
+              <span class="text-[11px] text-muted">다운로드 패키지 생성 중...</span>
             </div>
             <div class="space-y-2">
-              <div v-for="(doc, i) in docs" :key="i" class="flex items-center gap-3 text-[12px]">
-                <span class="text-lg">{{ doc.icon }}</span>
-                <span class="text-white/70 flex-1">{{ doc.name }}</span>
-                <span class="text-muted">{{ doc.date }}</span>
-                <span class="text-accent/80 font-medium">{{ doc.relevance }}</span>
+              <div v-for="(log, i) in logs" :key="i" class="flex items-center gap-3 text-[12px]">
+                <span class="text-lg">{{ log.icon }}</span>
+                <span class="text-white/70 flex-1">{{ log.name }}</span>
+                <span class="text-muted">{{ log.size }}</span>
+                <span class="text-accent/80 font-medium">{{ log.status }}</span>
               </div>
             </div>
           </div>
+          <button
+            type="button"
+            class="app-cta mt-5"
+            @click="emit('navigate', 'log-download')"
+          >
+            <span class="app-cta__glow"></span>
+            <span class="app-cta__content">
+              로그 다운로드 열기
+              <svg class="app-cta__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+              </svg>
+            </span>
+          </button>
         </div>
 
         <!-- Feature 2 -->
@@ -133,10 +146,12 @@
 import { useReveal } from '../composables/useReveal'
 useReveal()
 
-const docs = [
-  { icon: '📄', name: '2025 마케팅 전략 v3.docx', date: '3일 전', relevance: '98%' },
-  { icon: '📊', name: 'Q1 성과 보고서.xlsx', date: '1주 전', relevance: '91%' },
-  { icon: '📝', name: '브랜드 가이드라인.pdf', date: '2주 전', relevance: '84%' },
+const emit = defineEmits(['navigate'])
+
+const logs = [
+  { icon: '📦', name: 'equipment-error-20260418.zip', size: '128MB', status: 'Ready' },
+  { icon: '🧾', name: 'api-gateway-access.log', size: '42MB', status: 'Ready' },
+  { icon: '⚙️', name: 'system-health-dump.json', size: '18MB', status: 'Ready' },
 ]
 
 const meetingTags = ['Zoom 연동', 'Teams 지원', '화자 분리', '요약 자동 생성', '할일 추출']

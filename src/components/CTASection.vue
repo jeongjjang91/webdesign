@@ -52,9 +52,15 @@
           </select>
         </div>
         <button
-          class="w-full bg-accent text-white font-semibold py-3.5 rounded-xl hover:bg-accent/90 transition-all duration-200 hover:shadow-xl hover:shadow-accent/25 hover:-translate-y-0.5 text-[15px]"
+          class="app-cta app-cta--wide text-[15px]"
         >
-          도입 상담 신청하기 →
+          <span class="app-cta__glow"></span>
+          <span class="app-cta__content">
+            도입 상담 신청하기
+            <svg class="app-cta__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-6-6 6 6-6 6"/>
+            </svg>
+          </span>
         </button>
       </div>
 

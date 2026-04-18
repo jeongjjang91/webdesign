@@ -11,6 +11,7 @@
           :key="currentComponentKey"
           :initial-prompt="chatInitialPrompt"
           class="min-h-0 w-full flex-1 overflow-y-auto"
+          @navigate="navigateTo"
         />
       </Transition>
     </main>
@@ -25,6 +26,7 @@ import HeroSection from './components/HeroSection.vue'
 import DashboardSection from './components/DashboardSection.vue'
 import LogoStrip from './components/LogoStrip.vue'
 import FeaturesSection from './components/FeaturesSection.vue'
+import LogDownloadPage from './components/LogDownloadPage.vue'
 import HowItWorksSection from './components/HowItWorksSection.vue'
 import UseCasesSection from './components/UseCasesSection.vue'
 import TestimonialsSection from './components/TestimonialsSection.vue'
@@ -62,6 +64,7 @@ const pageMap = {
   home:         HomePage,
   dashboard:    DashboardSection,
   features:     FeaturesSection,
+  'log-download': LogDownloadPage,
   how:          HowItWorksSection,
   usecases:     UseCasesSection,
   testimonials: TestimonialsSection,

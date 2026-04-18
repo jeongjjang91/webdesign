@@ -14,9 +14,9 @@
           <span class="w-4 h-px bg-accent/60"></span>
         </div>
         <h2 class="text-4xl font-bold tracking-tight mb-5">
-          TC AI Bot <span class="text-gradient">적용 계획</span>
+          TC AI Bot <span class="text-gradient">개발 계획</span>
         </h2>
-        <p class="mx-auto max-w-2xl text-[14px] leading-relaxed text-[#B8C0CF]">
+        <p class="mx-auto max-w-1xl text-[14px] leading-relaxed text-[#B8C0CF]">
           사내 TC 시스템 VOC 대응을 자동화하기 위해 DB 조회, 문서 검색, 로그 분석, 지식 축적 순서로 단계적으로 기능을 확장합니다.
         </p>
       </div>

@@ -199,12 +199,15 @@
             />
             <button
               type="submit"
-              class="absolute bottom-3 right-3 flex h-11 items-center justify-center gap-2 rounded-lg bg-accent px-5 text-sm font-semibold text-white transition-all duration-200 hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/20"
+              class="app-cta app-cta--sm absolute bottom-3 right-3 h-11 text-sm"
             >
-              채팅 시작
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-6-6 6 6-6 6"/>
-              </svg>
+              <span class="app-cta__glow"></span>
+              <span class="app-cta__content">
+                채팅 시작
+                <svg class="app-cta__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-6-6 6 6-6 6"/>
+                </svg>
+              </span>
             </button>
           </div>
         </div>

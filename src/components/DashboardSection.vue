@@ -250,11 +250,14 @@
 
             <button
               type="button"
-              class="ml-auto inline-flex items-center justify-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-[12px] font-semibold text-[#C4C9D4] transition-colors hover:border-accent/40 hover:text-white"
+              class="app-cta app-cta--sm ml-auto"
               @click="downloadCsv"
             >
-              <Icon icon="lucide:download" class="h-4 w-4" />
-              CSV 다운로드
+              <span class="app-cta__glow"></span>
+              <span class="app-cta__content">
+                <Icon icon="lucide:download" class="h-4 w-4" />
+                CSV 다운로드
+              </span>
             </button>
           </div>
 

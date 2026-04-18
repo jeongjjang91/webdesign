@@ -13,10 +13,13 @@
     <div class="px-3 pt-4 pb-2">
       <button
         @click="emit('navigate', 'chat')"
-        class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-sky-300/10 bg-[#123B52] text-white text-sm font-semibold shadow-[0_12px_30px_rgba(18,59,82,0.22),inset_0_1px_0_rgba(255,255,255,0.12)] transition-all duration-200 [text-shadow:0_1px_1px_rgba(0,0,0,0.18)] hover:bg-[#164A64] hover:shadow-[0_14px_34px_rgba(18,59,82,0.32),inset_0_1px_0_rgba(255,255,255,0.16)]"
+        class="app-cta app-cta--wide app-cta--sm text-sm"
       >
-        <Icon icon="lucide:plus" class="w-4 h-4 flex-shrink-0" />
-        새로운 채팅
+        <span class="app-cta__glow"></span>
+        <span class="app-cta__content">
+          <Icon icon="lucide:plus" class="h-4 w-4 flex-shrink-0" />
+          새로운 채팅
+        </span>
       </button>
     </div>
 
@@ -335,10 +338,11 @@
                 </button>
                 <button
                   type="button"
-                  class="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent/90"
+                  class="app-cta app-cta--sm text-sm"
                   @click="closeSettings"
                 >
-                  저장
+                  <span class="app-cta__glow"></span>
+                  <span class="app-cta__content">저장</span>
                 </button>
               </div>
             </footer>
