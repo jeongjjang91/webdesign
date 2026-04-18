@@ -70,13 +70,13 @@
                 <article class="dashboard-card rounded-lg border border-white/[0.08] bg-[#0D0D14] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                   <div class="mb-3 flex items-center justify-between">
                     <div>
-                      <p class="text-[12px] font-semibold text-[#8B94A5]">팀별 요청 추이</p>
+                      <p class="text-[12px] font-semibold text-[#8B94A5]">LINE별 TC 추이</p>
                       <p class="mt-1 text-2xl font-bold tabular-nums text-white">42건</p>
                     </div>
                     <Icon icon="lucide:line-chart" class="h-5 w-5 text-accent" />
                   </div>
                   <div class="h-40 rounded-lg border border-white/[0.06] bg-white/[0.03] p-3">
-                    <svg viewBox="0 0 260 120" class="h-full w-full" role="img" aria-label="팀별 요청 추이 차트">
+                    <svg viewBox="0 0 260 120" class="h-full w-full" role="img" aria-label="LINE별 TC 추이 차트">
                       <path d="M10 98 H250" stroke="rgba(255,255,255,0.08)" stroke-width="1" />
                       <path d="M10 68 H250" stroke="rgba(255,255,255,0.08)" stroke-width="1" />
                       <path d="M10 38 H250" stroke="rgba(255,255,255,0.08)" stroke-width="1" />
@@ -89,8 +89,8 @@
                 <article class="dashboard-card rounded-lg border border-white/[0.08] bg-[#0D0D14] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                   <div class="mb-3 flex items-center justify-between">
                     <div>
-                      <p class="text-[12px] font-semibold text-[#8B94A5]">부서별 비중</p>
-                      <p class="mt-1 text-2xl font-bold tabular-nums text-white">5팀</p>
+                      <p class="text-[12px] font-semibold text-[#8B94A5]">MODEL별 비중</p>
+                      <p class="mt-1 text-2xl font-bold tabular-nums text-white">4종</p>
                     </div>
                     <Icon icon="lucide:pie-chart" class="h-5 w-5 text-accent" />
                   </div>
@@ -112,7 +112,7 @@
                 <article class="dashboard-card rounded-lg border border-white/[0.08] bg-[#0D0D14] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                   <div class="mb-3 flex items-center justify-between">
                     <div>
-                      <p class="text-[12px] font-semibold text-[#8B94A5]">팀별 처리량</p>
+                      <p class="text-[12px] font-semibold text-[#8B94A5]">LINE별 설비 수</p>
                       <p class="mt-1 text-2xl font-bold tabular-nums text-white">87%</p>
                     </div>
                     <Icon icon="lucide:bar-chart-3" class="h-5 w-5 text-accent" />
@@ -209,7 +209,7 @@
 
                 <div class="flex items-center gap-2 text-[12px] text-[#8B94A5]">
                   <Icon icon="lucide:filter" class="h-4 w-4" />
-                  <span>{{ filteredRequests.length }}개 요청 표시 중</span>
+                  <span>{{ filteredRequests.length }}개 설비 표시 중</span>
                 </div>
               </div>
             </div>
@@ -262,17 +262,17 @@
           </div>
 
           <div class="w-full overflow-hidden rounded-lg border border-white/[0.08] bg-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-            <div class="grid min-w-[1640px] gap-4 border-b border-white/[0.08] bg-white/[0.04] px-5 py-3 text-[12px] font-semibold text-[#8B94A5]" :style="tableGridStyle">
-              <div
-                v-for="column in tableColumns"
-                :key="column.key"
-                :class="column.align === 'right' ? 'text-right' : ''"
-              >
-                {{ column.label }}
-              </div>
-            </div>
-
             <div class="overflow-auto" :class="filteredRequests.length >= 30 ? 'max-h-[640px]' : ''">
+              <div class="grid min-w-[1640px] gap-4 border-b border-white/[0.08] bg-white/[0.04] px-5 py-3 text-[12px] font-semibold text-[#8B94A5]" :style="tableGridStyle">
+                <div
+                  v-for="column in tableColumns"
+                  :key="column.key"
+                  :class="column.align === 'right' ? 'text-right' : ''"
+                >
+                  {{ column.label }}
+                </div>
+              </div>
+
               <div v-if="filteredRequests.length" class="min-w-[1640px] divide-y divide-white/[0.06]">
                 <article
                   v-for="request in filteredRequests"
@@ -297,11 +297,6 @@
                         {{ request.status }}
                       </span>
                     </template>
-                    <template v-else-if="column.key === 'priority'">
-                      <span class="rounded-full px-2.5 py-1 text-[12px] font-semibold" :class="priorityClass(request.priority)">
-                        {{ request.priority }}
-                      </span>
-                    </template>
                     <template v-else>
                       <span class="truncate text-[#C4C9D4]">{{ request[column.key] }}</span>
                     </template>
@@ -313,7 +308,7 @@
                 <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
                   <Icon icon="lucide:search-x" class="h-5 w-5 text-[#8B94A5]" />
                 </div>
-                <h2 class="text-lg font-semibold text-white">조건에 맞는 요청이 없습니다</h2>
+                <h2 class="text-lg font-semibold text-white">조건에 맞는 설비가 없습니다</h2>
                 <p class="mt-2 text-sm text-[#8B94A5]">필터를 줄이거나 전체 해제를 눌러 다시 확인해보세요.</p>
               </div>
             </div>
@@ -346,32 +341,39 @@ const openFilterId = ref(null)
 const activeMenuId = ref('requests')
 
 const selectedFilters = reactive({
-  team: [],
-  status: [],
-  priority: [],
+  lineId: [],
+  eqpId: [],
+  serverModel: [],
+  dcopModel: [],
 })
 
 const filterSearch = reactive({
-  team: '',
-  status: '',
-  priority: '',
+  lineId: '',
+  eqpId: '',
+  serverModel: '',
+  dcopModel: '',
 })
 
 const filterControls = [
   {
-    id: 'team',
-    label: '부서',
-    options: ['개발팀', '인사팀', '영업팀', '법무팀', '고객지원'],
+    id: 'lineId',
+    label: 'LINEID',
+    options: ['LINE-01', 'LINE-02', 'LINE-03', 'LINE-04'],
   },
   {
-    id: 'status',
-    label: '상태',
-    options: ['진행중', '완료', '검토중', '대기'],
+    id: 'eqpId',
+    label: 'EQPID',
+    options: ['EQP-042', 'EQP-117', 'EQP-203', 'EQP-304', 'EQP-411'],
   },
   {
-    id: 'priority',
-    label: '우선순위',
-    options: ['높음', '보통', '낮음'],
+    id: 'serverModel',
+    label: 'SERVER MODEL',
+    options: ['SRV-A100', 'SRV-B200', 'SRV-C300', 'SRV-X900'],
+  },
+  {
+    id: 'dcopModel',
+    label: 'DCOP MODEL',
+    options: ['DCOP-7A', 'DCOP-8B', 'DCOP-9C', 'DCOP-X1'],
   },
 ]
 
@@ -379,30 +381,30 @@ const dashboardMenus = [
   {
     id: 'requests',
     icon: 'lucide:list-checks',
-    title: '요청 현황',
+    title: '설비 TC 현황',
     caption: '필터와 테이블',
-    description: '전체 요청을 필터링하고 상태별 처리 흐름을 확인합니다.',
+    description: 'LINEID, EQPID, SERVER MODEL, DCOP MODEL 기준으로 설비 TC 현황을 확인합니다.',
   },
   {
     id: 'teams',
     icon: 'lucide:users',
-    title: '팀별 보기',
-    caption: '부서별 업무량',
-    description: '부서별 요청 분포와 반복되는 업무 유형을 비교합니다.',
+    title: 'LINE별 보기',
+    caption: '설비 분포',
+    description: 'LINE별 설비 분포와 TC 운영 상태를 비교합니다.',
   },
   {
     id: 'priority',
     icon: 'lucide:flag',
-    title: '우선순위',
-    caption: '중요 요청 추적',
-    description: '높은 우선순위 요청을 먼저 살펴보고 처리 병목을 줄입니다.',
+    title: '점검 우선순위',
+    caption: '주의 설비 추적',
+    description: '주의, 점검중, 지연 상태의 설비를 먼저 확인합니다.',
   },
   {
     id: 'automation',
     icon: 'lucide:sparkles',
     title: '자동화 후보',
     caption: '반복 작업 탐색',
-    description: '자주 반복되는 요청을 찾아 템플릿이나 자동화 흐름으로 전환합니다.',
+    description: '반복되는 TC 점검 패턴을 찾아 자동화 후보로 전환합니다.',
   },
   {
     id: 'settings',
@@ -418,86 +420,76 @@ const activeMenu = computed(() => {
 })
 
 const teamDistribution = [
-  { team: '개발팀', value: 34, color: '#38BDF8' },
-  { team: '인사팀', value: 22, color: '#22C55E' },
-  { team: '영업팀', value: 18, color: '#F59E0B' },
-  { team: '법무팀', value: 14, color: '#A78BFA' },
+  { team: 'SRV-A100', value: 34, color: '#38BDF8' },
+  { team: 'SRV-B200', value: 22, color: '#22C55E' },
+  { team: 'SRV-C300', value: 18, color: '#F59E0B' },
+  { team: 'SRV-X900', value: 14, color: '#A78BFA' },
 ]
 
 const teamWorkload = [
-  { team: '개발팀', value: 14, percent: 88 },
-  { team: '인사팀', value: 9, percent: 56 },
-  { team: '영업팀', value: 7, percent: 44 },
-  { team: '법무팀', value: 5, percent: 31 },
+  { team: 'LINE-01', value: 14, percent: 88 },
+  { team: 'LINE-02', value: 9, percent: 56 },
+  { team: 'LINE-03', value: 7, percent: 44 },
+  { team: 'LINE-04', value: 5, percent: 31 },
 ]
 
 const tableColumns = [
-  { key: 'title', label: '요청' },
-  { key: 'requester', label: '요청자' },
-  { key: 'team', label: '부서' },
+  { key: 'title', label: '설비' },
+  { key: 'lineId', label: 'LINEID' },
+  { key: 'eqpId', label: 'EQPID' },
+  { key: 'serverModel', label: 'SERVER MODEL' },
+  { key: 'dcopModel', label: 'DCOP MODEL' },
+  { key: 'tcVersion', label: 'TC VERSION' },
   { key: 'status', label: '상태' },
-  { key: 'priority', label: '우선순위' },
-  { key: 'category', label: '분류' },
-  { key: 'channel', label: '채널' },
-  { key: 'assignee', label: '담당자' },
-  { key: 'estimatedTime', label: '예상 시간' },
-  { key: 'sla', label: 'SLA' },
-  { key: 'createdAt', label: '생성일' },
+  { key: 'lastSync', label: '최근 동기화' },
+  { key: 'owner', label: '담당자' },
   { key: 'updatedAt', label: '업데이트', align: 'right' },
 ]
 
 const tableGridStyle = {
-  gridTemplateColumns: 'minmax(320px,2fr) minmax(110px,0.7fr) minmax(110px,0.7fr) minmax(110px,0.7fr) minmax(110px,0.7fr) minmax(130px,0.85fr) minmax(110px,0.7fr) minmax(110px,0.7fr) minmax(110px,0.7fr) minmax(100px,0.65fr) minmax(120px,0.75fr) minmax(140px,0.85fr)',
+  gridTemplateColumns: 'minmax(300px,1.8fr) minmax(110px,0.7fr) minmax(120px,0.75fr) minmax(150px,0.9fr) minmax(150px,0.9fr) minmax(120px,0.75fr) minmax(110px,0.7fr) minmax(140px,0.85fr) minmax(110px,0.7fr) minmax(140px,0.85fr)',
 }
 
 const baseRequests = [
-  { id: 1, title: 'Q2 마케팅 회의록 요약', summary: '핵심 결정사항과 액션 아이템 정리', requester: '김지은', team: '영업팀', status: '완료', priority: '보통', category: '문서 요약', channel: 'Web', assignee: 'TC-01', estimatedTime: '12분', sla: '정상', createdAt: '오늘 09:58', updatedAt: '오늘 10:42' },
-  { id: 2, title: '신입 온보딩 문서 초안', summary: '첫 출근 안내와 부서별 체크리스트 작성', requester: '박성민', team: '인사팀', status: '진행중', priority: '높음', category: '문서 작성', channel: 'Slack', assignee: 'TC-02', estimatedTime: '28분', sla: '주의', createdAt: '오늘 08:44', updatedAt: '오늘 09:18' },
-  { id: 3, title: '계약서 위험 조항 검토', summary: '면책, 위약, 개인정보 조항 우선 검토', requester: '이수연', team: '법무팀', status: '검토중', priority: '높음', category: '리스크 분석', channel: 'Web', assignee: 'TC-03', estimatedTime: '35분', sla: '주의', createdAt: '어제 16:02', updatedAt: '어제 17:35' },
-  { id: 4, title: '레거시 API 코드 설명', summary: '인증 모듈 흐름과 오류 처리 경로 정리', requester: '최현우', team: '개발팀', status: '완료', priority: '보통', category: '코드 분석', channel: 'API', assignee: 'TC-01', estimatedTime: '18분', sla: '정상', createdAt: '어제 14:10', updatedAt: '어제 15:04' },
-  { id: 5, title: '고객 문의 답변 가이드', summary: '환불 및 계정 복구 문의 응대 문구 정리', requester: '정태준', team: '고객지원', status: '진행중', priority: '보통', category: '응대 가이드', channel: 'Helpdesk', assignee: 'TC-04', estimatedTime: '22분', sla: '정상', createdAt: '4월 15일', updatedAt: '4월 15일' },
-  { id: 6, title: '보안 정책 FAQ 정리', summary: '자료 반출과 외부 협업 기준 문답화', requester: '한소영', team: '인사팀', status: '대기', priority: '낮음', category: 'FAQ', channel: 'Web', assignee: '미배정', estimatedTime: '16분', sla: '여유', createdAt: '4월 14일', updatedAt: '4월 14일' },
-  { id: 7, title: '영업 제안서 문장 개선', summary: '도입 효과 중심으로 첫 문단 재작성', requester: '김지은', team: '영업팀', status: '완료', priority: '낮음', category: '문장 개선', channel: 'Web', assignee: 'TC-02', estimatedTime: '9분', sla: '정상', createdAt: '4월 13일', updatedAt: '4월 13일' },
-  { id: 8, title: '버그 리포트 원인 분류', summary: '로그 기반으로 재현 조건과 원인 후보 분리', requester: '최현우', team: '개발팀', status: '검토중', priority: '높음', category: '이슈 분석', channel: 'API', assignee: 'TC-03', estimatedTime: '31분', sla: '주의', createdAt: '4월 12일', updatedAt: '4월 12일' },
+  { id: 1, title: 'Main Litho TC', summary: '노광 설비 TC 운영 현황', lineId: 'LINE-01', eqpId: 'EQP-042', serverModel: 'SRV-A100', dcopModel: 'DCOP-7A', tcVersion: 'TC 4.2.1', status: '정상', lastSync: '오늘 10:42', owner: 'JG', updatedAt: '오늘 10:42' },
+  { id: 2, title: 'Etch Chamber TC', summary: '식각 챔버 TC 상태 점검', lineId: 'LINE-01', eqpId: 'EQP-117', serverModel: 'SRV-B200', dcopModel: 'DCOP-8B', tcVersion: 'TC 4.1.8', status: '주의', lastSync: '오늘 09:18', owner: 'TC-02', updatedAt: '오늘 09:18' },
+  { id: 3, title: 'CMP Process TC', summary: 'CMP 공정 설비 연동 현황', lineId: 'LINE-02', eqpId: 'EQP-203', serverModel: 'SRV-C300', dcopModel: 'DCOP-9C', tcVersion: 'TC 4.2.0', status: '점검중', lastSync: '어제 17:35', owner: 'TC-03', updatedAt: '어제 17:35' },
+  { id: 4, title: 'Diffusion TC', summary: '확산 공정 TC 패키지 상태', lineId: 'LINE-03', eqpId: 'EQP-304', serverModel: 'SRV-X900', dcopModel: 'DCOP-X1', tcVersion: 'TC 4.0.9', status: '정상', lastSync: '어제 15:04', owner: 'TC-01', updatedAt: '어제 15:04' },
+  { id: 5, title: 'Inspection TC', summary: '검사 설비 데이터 수집 상태', lineId: 'LINE-04', eqpId: 'EQP-411', serverModel: 'SRV-A100', dcopModel: 'DCOP-8B', tcVersion: 'TC 4.2.1', status: '지연', lastSync: '4월 15일', owner: 'TC-04', updatedAt: '4월 15일' },
 ]
 
 const requestVariants = [
-  { title: '월간 영업 실적 보고서 정리', summary: '지역별 매출 변화와 주요 코멘트 요약', category: '보고서 정리', team: '영업팀', requester: '오하윤', channel: 'Web' },
-  { title: '채용 면접 질문 리스트 작성', summary: '직무 역량과 협업 경험 중심 질문 구성', category: '채용 지원', team: '인사팀', requester: '서민재', channel: 'Slack' },
-  { title: '개인정보 처리 위탁 조항 검토', summary: '수탁사 책임 범위와 고지 문구 점검', category: '계약 검토', team: '법무팀', requester: '윤서진', channel: 'Web' },
-  { title: '배포 오류 로그 요약', summary: '실패 지점과 재시도 가능 조건 분류', category: '장애 분석', team: '개발팀', requester: '강도윤', channel: 'API' },
-  { title: '고객 불만 유형 분류', summary: '반복 문의 유형과 우선 처리 기준 정리', category: '문의 분석', team: '고객지원', requester: '문채원', channel: 'Helpdesk' },
-  { title: '사내 보안 교육 자료 초안', summary: '임직원 대상 보안 수칙과 사례 작성', category: '교육 자료', team: '인사팀', requester: '한유진', channel: 'Web' },
-  { title: '제안서 경쟁사 비교표 작성', summary: '기능, 비용, 보안 기준 비교 항목 구성', category: '시장 분석', team: '영업팀', requester: '배준호', channel: 'Web' },
-  { title: 'API 명세 변경점 요약', summary: '신규 필드와 호환성 영향 범위 정리', category: '기술 문서', team: '개발팀', requester: '정우빈', channel: 'API' },
-  { title: '환불 정책 안내 문구 개선', summary: '고객 안내용 문장을 명확하고 부드럽게 수정', category: '응대 문구', team: '고객지원', requester: '이도아', channel: 'Helpdesk' },
+  { title: 'Photo Track TC', summary: 'Photo track 설비 TC 연결 상태', lineId: 'LINE-01', eqpId: 'EQP-042', serverModel: 'SRV-A100', dcopModel: 'DCOP-7A' },
+  { title: 'Dry Etch TC', summary: 'Dry etch 설비 로그 수집 상태', lineId: 'LINE-01', eqpId: 'EQP-117', serverModel: 'SRV-B200', dcopModel: 'DCOP-8B' },
+  { title: 'Wet Bench TC', summary: 'Wet station TC 패키지 버전 확인', lineId: 'LINE-02', eqpId: 'EQP-203', serverModel: 'SRV-C300', dcopModel: 'DCOP-9C' },
+  { title: 'Furnace TC', summary: 'Furnace 설비 서버 모델 매핑', lineId: 'LINE-03', eqpId: 'EQP-304', serverModel: 'SRV-X900', dcopModel: 'DCOP-X1' },
+  { title: 'Metrology TC', summary: 'Metrology 설비 DCOP 연동 상태', lineId: 'LINE-04', eqpId: 'EQP-411', serverModel: 'SRV-A100', dcopModel: 'DCOP-8B' },
+  { title: 'Sorter TC', summary: 'Sorter 설비 TC 상태 추적', lineId: 'LINE-02', eqpId: 'EQP-117', serverModel: 'SRV-B200', dcopModel: 'DCOP-7A' },
+  { title: 'Implant TC', summary: 'Implant 설비 서버 동기화', lineId: 'LINE-03', eqpId: 'EQP-203', serverModel: 'SRV-C300', dcopModel: 'DCOP-X1' },
+  { title: 'Clean TC', summary: 'Clean 설비 TC 로그 점검', lineId: 'LINE-04', eqpId: 'EQP-304', serverModel: 'SRV-X900', dcopModel: 'DCOP-9C' },
 ]
 
-const statuses = ['진행중', '완료', '검토중', '대기']
-const priorities = ['높음', '보통', '낮음']
-const assignees = ['TC-01', 'TC-02', 'TC-03', 'TC-04', '미배정']
-const slaLabels = ['정상', '주의', '여유']
+const statuses = ['정상', '주의', '점검중', '지연']
+const tcVersions = ['TC 4.2.1', 'TC 4.2.0', 'TC 4.1.8', 'TC 4.0.9']
+const assignees = ['JG', 'TC-01', 'TC-02', 'TC-03', 'TC-04']
 
 const generatedRequests = Array.from({ length: 28 }, (_, index) => {
   const variant = requestVariants[index % requestVariants.length]
   const id = baseRequests.length + index + 1
   const status = statuses[index % statuses.length]
-  const priority = priorities[(index + 1) % priorities.length]
 
   return {
     id,
     title: variant.title,
     summary: variant.summary,
-    requester: variant.requester,
-    team: variant.team,
+    lineId: variant.lineId,
+    eqpId: variant.eqpId,
+    serverModel: variant.serverModel,
+    dcopModel: variant.dcopModel,
+    tcVersion: tcVersions[index % tcVersions.length],
     status,
-    priority,
-    category: variant.category,
-    channel: variant.channel,
-    assignee: assignees[index % assignees.length],
-    estimatedTime: `${10 + ((index * 7) % 31)}분`,
-    sla: slaLabels[index % slaLabels.length],
-    createdAt: `4월 ${11 - (index % 7)}일`,
+    lastSync: `4월 ${18 - (index % 7)}일`,
+    owner: assignees[index % assignees.length],
     updatedAt: `4월 ${12 - (index % 7)}일`,
   }
 })
@@ -524,26 +516,26 @@ const filteredRequests = computed(() => {
 })
 
 const metrics = computed(() => [
-  { label: '전체 요청', value: requests.length },
-  { label: '진행중', value: requests.filter((request) => request.status === '진행중').length },
-  { label: '높은 우선순위', value: requests.filter((request) => request.priority === '높음').length },
+  { label: '전체 설비', value: requests.length },
+  { label: '정상', value: requests.filter((request) => request.status === '정상').length },
+  { label: '점검 필요', value: requests.filter((request) => request.status !== '정상').length },
 ])
 
 const insights = [
   {
     icon: 'lucide:activity',
-    title: '요청 흐름',
-    description: '최근 요청은 인사팀과 개발팀에 집중되어 있습니다. 반복되는 문서 작업은 템플릿화하면 더 빠르게 처리할 수 있습니다.',
+    title: 'TC 동기화',
+    description: '최근 동기화 지연 설비를 LINEID와 EQPID 기준으로 좁혀 빠르게 확인할 수 있습니다.',
   },
   {
-    icon: 'lucide:shield-check',
-    title: '보안 검토',
-    description: '법무팀과 보안 관련 요청은 검토중 상태가 많습니다. 승인 기준을 칩 필터로 분리하면 병목을 쉽게 찾을 수 있습니다.',
+    icon: 'lucide:server',
+    title: '모델 매핑',
+    description: 'SERVER MODEL과 DCOP MODEL 조합을 필터링해 설비별 TC 호환 상태를 점검합니다.',
   },
   {
     icon: 'lucide:timer',
-    title: '응답 속도',
-    description: '완료된 요청 대부분은 당일 처리되었습니다. 높은 우선순위 항목은 별도 알림으로 연결하기 좋은 후보입니다.',
+    title: '운영 우선순위',
+    description: '주의, 점검중, 지연 상태의 설비를 우선 확인해 로그 다운로드와 원인 분석으로 연결합니다.',
   },
 ]
 
@@ -627,24 +619,15 @@ function downloadCsv() {
 
 function statusClass(status) {
   const classes = {
-    완료: 'bg-emerald-400/10 text-emerald-300',
-    진행중: 'bg-accent/10 text-[#8BD8FF]',
-    검토중: 'bg-amber-400/10 text-amber-300',
-    대기: 'bg-white/[0.06] text-[#AEB6C6]',
+    정상: 'bg-emerald-400/10 text-emerald-300',
+    주의: 'bg-amber-400/10 text-amber-300',
+    점검중: 'bg-accent/10 text-[#8BD8FF]',
+    지연: 'bg-rose-400/10 text-rose-300',
   }
 
   return classes[status]
 }
 
-function priorityClass(priority) {
-  const classes = {
-    높음: 'bg-rose-400/10 text-rose-300',
-    보통: 'bg-white/[0.06] text-[#C4C9D4]',
-    낮음: 'bg-slate-400/10 text-slate-300',
-  }
-
-  return classes[priority]
-}
 </script>
 
 <style scoped>

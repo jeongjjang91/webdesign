@@ -29,9 +29,9 @@
             </div>
             <span class="text-[11px] text-accent/60 font-medium bg-accent/8 rounded-full px-2.5 py-1">인기</span>
           </div>
-          <h3 class="text-xl font-bold mb-2">사내 로그 즉시 Download</h3>
+          <h3 class="text-xl font-bold mb-2">설비 로그 Download</h3>
           <p class="text-[#9CA3B0] text-[14px] leading-relaxed mb-6">
-            장비, 기간, 로그 유형을 선택하면 필요한 사내 로그를 즉시 묶어 다운로드합니다. 장애 분석과 VOC 대응에 필요한 원본 데이터를 빠르게 확보합니다.
+            LineID, EQPID, 날짜, 로그 유형을 선택하면 필요한 사내 로그와 TBL 로그를 즉시 묶어 다운로드합니다. 결과는 등록된 메일주소로 전달됩니다.
           </p>
           <!-- Mini demo -->
           <div class="bg-ink-900 rounded-xl p-4 border border-white/6">

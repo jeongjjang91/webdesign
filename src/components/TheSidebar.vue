@@ -25,8 +25,11 @@
 
     <!-- Recent Chats -->
     <section class="px-3 pb-3">
-      <div class="flex items-center justify-between px-1.5 pb-2">
-        <p class="text-[11px] font-semibold uppercase text-[#6B7280]">최근 대화</p>
+      <div class="flex items-start justify-between gap-2 px-1.5 pb-2">
+        <div>
+          <p class="text-[11px] font-semibold uppercase text-[#6B7280]">최근 대화</p>
+          <p class="mt-0.5 text-[10px] leading-4 text-[#6B7280]">최대 3시간까지 보관</p>
+        </div>
         <button
           type="button"
           class="text-[11px] font-medium text-[#8B94A5] hover:text-white transition-colors"
@@ -139,7 +142,7 @@
         </div>
         <div class="min-w-0 flex-1">
           <p class="truncate text-[13px] font-semibold text-white">정근</p>
-          <p class="truncate text-[11px] text-[#7D8594]">jungeun@tc.co.kr</p>
+          <p class="truncate text-[11px] text-[#7D8594]">jg91.jang@samsung.com</p>
         </div>
         <button
           type="button"
@@ -212,7 +215,7 @@
                     </div>
                     <div class="min-w-0">
                       <h3 class="truncate text-lg font-bold text-white">정근</h3>
-                      <p class="truncate text-sm text-[#8B94A5]">jungeun@tc.co.kr</p>
+                      <p class="truncate text-sm text-[#8B94A5]">jg91.jang@samsung.com</p>
                       <p class="mt-1 text-[12px] text-emerald-400">활성 계정</p>
                     </div>
                   </div>
@@ -678,7 +681,7 @@ const navItems = [
   { page: 'how',          label: '적용 계획', icon: 'lucide:repeat-2' },
   { page: 'usecases',     label: '활용 사례', icon: 'lucide:briefcase' },
   { page: 'testimonials', label: '후기',     icon: 'lucide:star' },
-  { page: 'security',     label: '보안',     icon: 'lucide:shield' },
+  { page: 'security',     label: '개발 이력', icon: 'lucide:git-branch' },
   { page: 'cta',          label: '시작하기',  icon: 'lucide:rocket' },
 ]
 </script>

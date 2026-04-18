@@ -1,5 +1,5 @@
 <template>
-  <section class="min-h-full bg-[#0A0A0F] px-6 py-8 text-white">
+  <section class="min-h-full bg-[#0A0A0F] px-6 py-8 text-white" @click="openComboId = null">
     <div class="mx-auto w-full max-w-7xl">
       <header class="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
@@ -16,11 +16,11 @@
             <span class="text-xs font-semibold text-accent/90">Internal Log Download</span>
           </div>
           <h1 class="text-4xl font-bold leading-tight tracking-tight lg:text-5xl">
-            사내 로그 즉시<br />
+            설비 로그<br />
             Download
           </h1>
           <p class="mt-4 max-w-2xl text-[15px] leading-relaxed text-[#9CA3B0]">
-            장비, 기간, 로그 유형을 선택해 장애 분석과 VOC 대응에 필요한 로그 패키지를 생성합니다.
+            LineID, EQPID, 날짜, 로그 유형을 선택해 장애 분석과 VOC 대응에 필요한 로그 패키지를 생성합니다.
           </p>
         </div>
 
@@ -45,15 +45,89 @@
               </span>
             </div>
 
-            <div class="grid gap-4 md:grid-cols-2">
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               <label v-for="field in formFields" :key="field.id" class="block">
                 <span class="mb-1.5 block text-[12px] font-semibold text-[#7D8594]">{{ field.label }}</span>
+                <div v-if="field.type === 'searchable-select'" class="relative">
+                  <button
+                    type="button"
+                    class="flex w-full items-center justify-between gap-3 rounded-lg border border-white/[0.08] bg-[#0D0D14] px-3 py-2.5 text-left text-sm text-white outline-none transition-colors hover:bg-white/[0.04] focus:border-accent/50"
+                    :aria-expanded="openComboId === field.id"
+                    @click.stop="toggleCombo(field.id)"
+                  >
+                    <span class="truncate">{{ downloadForm[field.id] }}</span>
+                    <Icon
+                      icon="lucide:chevron-down"
+                      class="h-4 w-4 flex-shrink-0 text-[#8B94A5] transition-transform"
+                      :class="openComboId === field.id ? 'rotate-180' : ''"
+                    />
+                  </button>
+                  <div
+                    v-if="openComboId === field.id"
+                    class="absolute left-0 top-[calc(100%+6px)] z-30 w-full overflow-hidden rounded-lg border border-white/[0.08] bg-[#111118] p-2 shadow-xl shadow-black/30"
+                    @click.stop
+                  >
+                    <div class="relative mb-2">
+                      <Icon icon="lucide:search" class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B7280]" />
+                      <input
+                        v-model="comboSearch[field.id]"
+                        type="text"
+                        class="w-full rounded-md border border-white/[0.08] bg-white/[0.04] py-2 pl-9 pr-3 text-[13px] text-white placeholder-[#6B7280] outline-none transition-colors focus:border-accent/50"
+                        :placeholder="`${field.label} 검색`"
+                      />
+                    </div>
+                    <div class="max-h-48 overflow-y-auto">
+                      <button
+                        v-for="option in filteredComboOptions(field)"
+                        :key="option"
+                        type="button"
+                        class="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-[13px] transition-colors hover:bg-white/[0.06] hover:text-white"
+                        :class="downloadForm[field.id] === option ? 'text-white' : 'text-[#C4C9D4]'"
+                        @click="selectComboOption(field.id, option)"
+                      >
+                        <span class="truncate">{{ option }}</span>
+                        <Icon v-if="downloadForm[field.id] === option" icon="lucide:check" class="h-4 w-4 flex-shrink-0 text-accent" />
+                      </button>
+                      <div v-if="!filteredComboOptions(field).length" class="px-3 py-3 text-center text-[12px] text-[#7D8594]">
+                        검색 결과가 없습니다
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <select
+                  v-else-if="field.type === 'select'"
                   v-model="downloadForm[field.id]"
                   class="w-full rounded-lg border border-white/[0.08] bg-[#0D0D14] px-3 py-2.5 text-sm text-white outline-none transition-colors focus:border-accent/50"
                 >
                   <option v-for="option in field.options" :key="option" :value="option">{{ option }}</option>
                 </select>
+                <div v-else-if="field.type === 'date'" class="relative">
+                  <input
+                    v-model="downloadForm[field.id]"
+                    type="date"
+                    :min="minLogDate"
+                    :max="maxLogDate"
+                    class="log-date-input w-full rounded-lg border border-white/[0.08] bg-[#0D0D14] px-3 py-2.5 pr-10 text-sm text-white outline-none transition-colors focus:border-accent/50"
+                    @click="openDatePicker"
+                    @focus="openDatePicker"
+                  />
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-[#8B94A5] transition-colors hover:bg-white/[0.06] hover:text-white"
+                    aria-label="날짜 선택"
+                    @click="openDatePicker"
+                  >
+                    <Icon icon="lucide:calendar-days" class="h-4 w-4" />
+                  </button>
+                </div>
+                <input
+                  v-else
+                  v-model="downloadForm[field.id]"
+                  :type="field.type"
+                  class="w-full rounded-lg border border-white/[0.08] bg-[#0D0D14] px-3 py-2.5 text-sm text-white outline-none transition-colors focus:border-accent/50"
+                  :placeholder="field.placeholder"
+                  :readonly="field.readonly"
+                />
               </label>
             </div>
 
@@ -153,21 +227,34 @@ import { Icon } from '@iconify/vue'
 
 const emit = defineEmits(['navigate'])
 
+const defaultEmail = 'jg91.jang@samsung.com'
+const maxLogDate = formatDateForInput(new Date())
+const minLogDate = formatDateForInput(addMonths(new Date(), -1))
+const openComboId = ref(null)
+const comboSearch = reactive({
+  lineId: '',
+  eqpId: '',
+})
+
 const downloadForm = reactive({
-  equipment: 'TC-EQP-042',
-  range: '최근 24시간',
-  logType: 'Error + Access',
-  format: 'ZIP',
+  lineId: 'LINE-01',
+  eqpId: 'EQP-042',
+  logDate: maxLogDate,
+  logType: 'Error',
+  mergeTblLog: '병합',
+  email: defaultEmail,
   reason: '',
 })
 
 const requestCreated = ref(false)
 
 const formFields = [
-  { id: 'equipment', label: '장비', options: ['TC-EQP-042', 'TC-EQP-117', 'TC-EQP-203', '전체 설비'] },
-  { id: 'range', label: '기간', options: ['최근 1시간', '최근 24시간', '최근 7일', '직접 지정'] },
-  { id: 'logType', label: '로그 유형', options: ['Error + Access', 'Error only', 'System health', 'VOC trace'] },
-  { id: 'format', label: '파일 형식', options: ['ZIP', 'TAR.GZ', 'JSONL'] },
+  { id: 'lineId', label: 'LineID', type: 'searchable-select', options: ['LINE-01', 'LINE-02', 'LINE-03', 'LINE-04', 'LINE-ALL'] },
+  { id: 'eqpId', label: 'EQPID', type: 'searchable-select', options: ['EQP-042', 'EQP-117', 'EQP-203', 'EQP-304', 'EQP-ALL'] },
+  { id: 'logDate', label: '날짜', type: 'date' },
+  { id: 'logType', label: '로그 유형', type: 'select', options: ['Error', 'Access', 'System', 'VOC Trace', 'All'] },
+  { id: 'mergeTblLog', label: 'TBL 로그 병합', type: 'select', options: ['병합', '미병합'] },
+  { id: 'email', label: '메일주소', type: 'email', placeholder: defaultEmail, readonly: true },
 ]
 
 const metrics = [
@@ -177,14 +264,14 @@ const metrics = [
 ]
 
 const packageFiles = [
-  { icon: 'lucide:file-text', name: 'equipment-error.log', path: '/logs/equipment/TC-EQP-042/error', size: '84MB' },
+  { icon: 'lucide:file-text', name: 'equipment-error.log', path: '/logs/line/LINE-01/eqp/EQP-042/error', size: '84MB' },
   { icon: 'lucide:server', name: 'api-gateway-access.log', path: '/logs/gateway/access', size: '42MB' },
-  { icon: 'lucide:activity', name: 'system-health-dump.json', path: '/logs/health/snapshot', size: '18MB' },
-  { icon: 'lucide:shield-check', name: 'audit-trail.csv', path: '/logs/audit/download', size: '6MB' },
+  { icon: 'lucide:table', name: 'tbl-log-merged.csv', path: '/logs/tbl/merged', size: '28MB' },
+  { icon: 'lucide:shield-check', name: 'download-audit.csv', path: '/logs/audit/download', size: '6MB' },
 ]
 
 const downloadHistory = [
-  { id: 1, title: 'TC-EQP-042 장애 분석 로그', createdAt: '오늘 11:42', size: '128MB', status: '완료' },
+  { id: 1, title: 'LINE-01 / EQP-042 장애 분석 로그', createdAt: '오늘 11:42', size: '128MB', status: '완료' },
   { id: 2, title: 'VOC trace 패키지', createdAt: '어제 16:08', size: '74MB', status: '완료' },
   { id: 3, title: 'Gateway access 로그', createdAt: '4월 17일', size: '211MB', status: '완료' },
 ]
@@ -196,11 +283,66 @@ const requestSteps = computed(() => [
 ])
 
 const estimatedPackage = computed(() => {
-  const size = downloadForm.range === '최근 7일' ? '620MB' : '150MB'
-  return `${downloadForm.equipment}_${downloadForm.logType}_${downloadForm.format} · ${size}`
+  const size = downloadForm.mergeTblLog === '병합' ? '178MB' : '150MB'
+  return `${downloadForm.lineId}_${downloadForm.eqpId}_${downloadForm.logDate}_${downloadForm.logType} · ${size} · ${downloadForm.email}`
 })
 
 const createDownloadRequest = () => {
   requestCreated.value = true
+  openComboId.value = null
+}
+
+const openDatePicker = (event) => {
+  const input = event.currentTarget.closest('.relative')?.querySelector('input[type="date"]')
+
+  try {
+    input?.showPicker?.()
+  } catch {
+    input?.focus()
+  }
+}
+
+function addMonths(date, months) {
+  const nextDate = new Date(date)
+  nextDate.setMonth(nextDate.getMonth() + months)
+  return nextDate
+}
+
+function formatDateForInput(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function filteredComboOptions(field) {
+  const query = String(comboSearch[field.id] ?? '').trim().toLowerCase()
+
+  if (!query) {
+    return field.options
+  }
+
+  return field.options.filter((option) => option.toLowerCase().includes(query))
+}
+
+function toggleCombo(fieldId) {
+  openComboId.value = openComboId.value === fieldId ? null : fieldId
+  comboSearch[fieldId] = ''
+}
+
+function selectComboOption(fieldId, option) {
+  downloadForm[fieldId] = option
+  comboSearch[fieldId] = ''
+  openComboId.value = null
 }
 </script>
+
+<style scoped>
+.log-date-input {
+  color-scheme: dark;
+}
+
+.log-date-input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}
+</style>
