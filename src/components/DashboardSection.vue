@@ -8,11 +8,10 @@
             <span class="text-xs font-semibold text-accent/90">TC Assistant Dashboard</span>
           </div>
           <h1 class="text-4xl font-bold leading-tight tracking-tight lg:text-5xl">
-            TC 정보를 한눈에<br />
-            확인하는 대시보드
+            TC 정보를 한눈에<br />확인하는 대시보드
           </h1>
           <p class="mt-4 max-w-[620px] text-[15px] leading-relaxed text-[#9CA3B0]">
-            TC 정보를 빠르게 확인하고, 필요한 내용만 골라 효율적으로 살펴볼 수 있습니다.
+            설비별 TC 상태와 파라미터, CEID 매핑 정보를 빠르게 확인합니다.
           </p>
         </div>
 
@@ -24,35 +23,7 @@
         </div>
       </header>
 
-      <div class="grid gap-6 xl:grid-cols-[220px_minmax(0,1fr)]">
-        <aside class="xl:sticky xl:top-8 xl:self-start">
-          <div class="rounded-lg border border-white/[0.08] bg-white/[0.04] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-            <div class="px-2 pb-3 pt-1">
-              <p class="text-[14px] font-semibold uppercase text-[#6B7280]">메뉴</p>
-            </div>
-            <nav class="space-y-2">
-              <button
-                v-for="menu in dashboardMenus"
-                :key="menu.id"
-                type="button"
-                class="w-full rounded-lg px-3 py-2.5 text-left transition-all duration-200"
-                :class="activeMenuId === menu.id
-                  ? 'bg-accent/10 text-accent'
-                  : 'text-[#9CA3B0] hover:bg-white/[0.04] hover:text-white'"
-                @click="activeMenuId = menu.id"
-              >
-                <span class="flex items-center gap-2.5">
-                  <Icon :icon="menu.icon" class="h-4 w-4 flex-shrink-0" />
-                  <span class="text-sm font-semibold">{{ menu.title }}</span>
-                </span>
-                <span class="mt-1 block pl-6 text-[11px] leading-4 text-[#7D8594]">
-                  {{ menu.caption }}
-                </span>
-              </button>
-            </nav>
-          </div>
-        </aside>
-
+      <div>
         <div class="min-w-0">
           <Transition name="dashboard-panel" mode="out-in">
             <div :key="activeMenuId" class="mb-4 rounded-lg border border-white/[0.08] bg-white/[0.04] p-4">
@@ -95,10 +66,7 @@
                     <Icon icon="lucide:pie-chart" class="h-5 w-5 text-accent" />
                   </div>
                   <div class="flex h-40 items-center gap-4 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
-                    <div
-                      class="h-24 w-24 flex-shrink-0 rounded-full"
-                      style="background: conic-gradient(#38BDF8 0 34%, #22C55E 34% 56%, #F59E0B 56% 74%, #A78BFA 74% 88%, rgba(255,255,255,0.14) 88% 100%)"
-                    />
+                    <div class="h-24 w-24 flex-shrink-0 rounded-full" style="background: conic-gradient(#38BDF8 0 34%, #22C55E 34% 56%, #F59E0B 56% 74%, #A78BFA 74% 88%, rgba(255,255,255,0.14) 88% 100%)" />
                     <div class="min-w-0 space-y-2">
                       <div v-for="item in teamDistribution" :key="item.team" class="flex items-center gap-2 text-[12px] text-[#AEB6C6]">
                         <span class="h-2.5 w-2.5 rounded-full" :style="{ backgroundColor: item.color }"></span>
@@ -133,74 +101,42 @@
 
               <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div class="flex flex-col gap-3 md:flex-row md:items-center">
-                  <div
-                    v-for="filter in filterControls"
-                    :key="filter.id"
-                    class="relative min-w-[200px]"
-                  >
-                    <span class="mb-1.5 block text-[11px] font-semibold text-[#7D8594]">{{ filter.label }}</span>
-                    <button
-                      type="button"
-                      class="flex w-full items-center justify-between gap-3 rounded-lg border border-white/[0.08] bg-[#0D0D14] px-3 py-2.5 text-left text-sm text-white outline-none transition-colors hover:bg-white/[0.04]"
-                      @click="toggleFilterPanel(filter.id)"
-                    >
-                      <span class="truncate" :class="selectedFilters[filter.id].length ? 'text-white' : 'text-[#7D8594]'">
-                        {{ filterButtonLabel(filter) }}
+                  <div v-for="filter in activeFilterControls" :key="filter.id" class="relative min-w-[200px]">
+                    <span class="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-[#7D8594]">
+                      {{ filter.label }}
+                      <span v-if="filter.tooltip" class="group/tooltip relative inline-flex h-5 w-5 items-center justify-center rounded-full border border-accent/35 bg-accent/10 text-accent transition-colors hover:border-accent/60 hover:bg-accent/15">
+                        <Icon icon="lucide:info" class="h-3.5 w-3.5" />
+                        <span class="pointer-events-none absolute bottom-7 left-1/2 z-[90] w-64 -translate-x-1/2 translate-y-1 rounded-lg border border-accent/50 bg-[#020617] p-3 text-left opacity-0 shadow-[0_16px_40px_rgba(0,0,0,0.55),0_0_28px_rgba(14,165,233,0.24)] ring-1 ring-white/[0.06] transition-all duration-150 group-hover/tooltip:translate-y-0 group-hover/tooltip:opacity-100">
+                          <span class="mb-1 block text-[11px] font-bold uppercase tracking-widest text-accent">{{ filter.label }}</span>
+                          <span class="block text-[12px] font-medium leading-relaxed text-[#D7DEE9]">{{ filter.tooltip }}</span>
+                          <span class="absolute left-1/2 top-full h-2 w-2 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b border-r border-accent/50 bg-[#020617]"></span>
+                        </span>
                       </span>
-                      <Icon
-                        icon="lucide:chevron-down"
-                        class="h-4 w-4 flex-shrink-0 text-[#7D8594] transition-transform"
-                        :class="openFilterId === filter.id ? 'rotate-180' : ''"
-                      />
+                    </span>
+                    <button type="button" class="flex w-full items-center justify-between gap-3 rounded-lg border border-white/[0.08] bg-[#0D0D14] px-3 py-2.5 text-left text-sm text-white outline-none transition-colors hover:bg-white/[0.04]" @click="toggleFilterPanel(filter.id)">
+                      <span class="truncate" :class="selectedFilters[filter.id].length ? 'text-white' : 'text-[#7D8594]'">{{ filterButtonLabel(filter) }}</span>
+                      <Icon icon="lucide:chevron-down" class="h-4 w-4 flex-shrink-0 text-[#7D8594] transition-transform" :class="openFilterId === filter.id ? 'rotate-180' : ''" />
                     </button>
 
-                    <div
-                      v-if="openFilterId === filter.id"
-                      class="absolute left-0 top-[72px] z-30 w-full rounded-lg border border-white/[0.08] bg-[#111118] p-2 shadow-xl shadow-black/30"
-                    >
+                    <div v-if="openFilterId === filter.id" class="absolute left-0 top-[72px] z-30 w-full rounded-lg border border-white/[0.08] bg-[#111118] p-2 shadow-xl shadow-black/30">
                       <div class="relative mb-2">
                         <Icon icon="lucide:search" class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B7280]" />
-                        <input
-                          v-model="filterSearch[filter.id]"
-                          type="text"
-                          class="w-full rounded-md border border-white/[0.08] bg-white/[0.04] py-2 pl-9 pr-3 text-[13px] text-white placeholder-[#6B7280] outline-none transition-colors focus:border-accent/50"
-                          :placeholder="`${filter.label} 검색`"
-                        />
+                        <input v-model="filterSearch[filter.id]" type="text" class="w-full rounded-md border border-white/[0.08] bg-white/[0.04] py-2 pl-9 pr-3 text-[13px] text-white placeholder-[#6B7280] outline-none transition-colors focus:border-accent/50" :placeholder="`${filter.label} 검색`" />
                       </div>
 
                       <div class="max-h-48 space-y-1 overflow-y-auto">
-                        <button
-                          v-for="option in filteredOptions(filter)"
-                          :key="option"
-                          type="button"
-                          class="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] transition-colors hover:bg-white/[0.05]"
-                          :class="isSelected(filter.id, option) ? 'text-white' : 'text-[#AEB6C6]'"
-                          @click="toggleFilterValue(filter.id, option)"
-                        >
-                          <span
-                            class="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border transition-colors"
-                            :class="isSelected(filter.id, option)
-                              ? 'border-accent bg-accent text-white'
-                              : 'border-white/[0.14] bg-white/[0.03]'"
-                          >
+                        <button v-for="option in filteredOptions(filter)" :key="option" type="button" class="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] transition-colors hover:bg-white/[0.05]" :class="isSelected(filter.id, option) ? 'text-white' : 'text-[#AEB6C6]'" @click="toggleFilterValue(filter.id, option)">
+                          <span class="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border transition-colors" :class="isSelected(filter.id, option) ? 'border-accent bg-accent text-white' : 'border-white/[0.14] bg-white/[0.03]'">
                             <Icon v-if="isSelected(filter.id, option)" icon="lucide:check" class="h-3 w-3" />
                           </span>
                           <span class="truncate">{{ option }}</span>
                         </button>
 
-                        <div v-if="!filteredOptions(filter).length" class="px-2.5 py-4 text-center text-[12px] text-[#7D8594]">
-                          검색 결과가 없습니다
-                        </div>
+                        <div v-if="!filteredOptions(filter).length" class="px-2.5 py-4 text-center text-[12px] text-[#7D8594]">검색 결과가 없습니다</div>
                       </div>
 
                       <div class="mt-2 flex items-center justify-between border-t border-white/[0.06] pt-2">
-                        <button
-                          type="button"
-                          class="text-[12px] font-semibold text-[#8B94A5] transition-colors hover:text-white"
-                          @click="clearFilterGroup(filter.id)"
-                        >
-                          선택 해제
-                        </button>
+                        <button type="button" class="text-[12px] font-semibold text-[#8B94A5] transition-colors hover:text-white" @click="clearFilterGroup(filter.id)">선택 해제</button>
                         <span class="text-[11px] text-[#6B7280]">{{ selectedFilters[filter.id].length }}개 선택</span>
                       </div>
                     </div>
@@ -209,50 +145,25 @@
 
                 <div class="flex items-center gap-2 text-[12px] text-[#8B94A5]">
                   <Icon icon="lucide:filter" class="h-4 w-4" />
-                  <span>{{ filteredRequests.length }}개 설비 표시 중</span>
+                  <span>{{ filteredRequests.length }}개 항목 표시 중</span>
                 </div>
               </div>
             </div>
           </Transition>
 
           <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <TransitionGroup
-              v-if="activeFilters.length"
-              name="chip"
-              tag="div"
-              class="flex flex-wrap items-center gap-2"
-            >
-              <div
-                v-for="filter in activeFilters"
-                :key="`${filter.id}-${filter.value}`"
-                class="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1.5 text-[12px] text-[#D7F3FF]"
-              >
+            <TransitionGroup v-if="activeFilters.length" name="chip" tag="div" class="flex flex-wrap items-center gap-2">
+              <div v-for="filter in activeFilters" :key="`${filter.id}-${filter.value}`" class="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1.5 text-[12px] text-[#D7F3FF]">
                 <span class="text-accent/80">{{ filter.label }}:</span>
                 <span class="font-semibold">{{ filter.value }}</span>
-                <button
-                  type="button"
-                  class="rounded-full p-0.5 text-[#8BD8FF] transition-colors hover:bg-white/10 hover:text-white"
-                  :aria-label="`${filter.label} ${filter.value} 필터 제거`"
-                  @click="removeFilter(filter.id, filter.value)"
-                >
+                <button type="button" class="rounded-full p-0.5 text-[#8BD8FF] transition-colors hover:bg-white/10 hover:text-white" :aria-label="`${filter.label} ${filter.value} 필터 제거`" @click="removeFilter(filter.id, filter.value)">
                   <Icon icon="lucide:x" class="h-3.5 w-3.5" />
                 </button>
               </div>
-              <button
-                key="clear-all"
-                type="button"
-                class="px-2 py-1 text-[12px] font-semibold text-[#8B94A5] transition-colors hover:text-white"
-                @click="clearFilters"
-              >
-                전체 해제
-              </button>
+              <button key="clear-all" type="button" class="px-2 py-1 text-[12px] font-semibold text-[#8B94A5] transition-colors hover:text-white" @click="clearFilters">전체 해제</button>
             </TransitionGroup>
 
-            <button
-              type="button"
-              class="app-cta app-cta--sm ml-auto"
-              @click="downloadCsv"
-            >
+            <button type="button" class="app-cta app-cta--sm ml-auto" @click="downloadCsv">
               <span class="app-cta__glow"></span>
               <span class="app-cta__content">
                 <Icon icon="lucide:download" class="h-4 w-4" />
@@ -263,39 +174,20 @@
 
           <div class="w-full overflow-hidden rounded-lg border border-white/[0.08] bg-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
             <div class="overflow-auto" :class="filteredRequests.length >= 30 ? 'max-h-[640px]' : ''">
-              <div class="grid min-w-[1640px] gap-4 border-b border-white/[0.08] bg-white/[0.04] px-5 py-3 text-[12px] font-semibold text-[#8B94A5]" :style="tableGridStyle">
-                <div
-                  v-for="column in tableColumns"
-                  :key="column.key"
-                  :class="column.align === 'right' ? 'text-right' : ''"
-                >
-                  {{ column.label }}
-                </div>
+              <div class="grid min-w-[1640px] gap-4 border-b border-white/[0.08] bg-white/[0.04] px-5 py-3 text-[12px] font-semibold text-[#8B94A5]" :style="activeTableGridStyle">
+                <div v-for="column in activeTableColumns" :key="column.key" :class="[column.align === 'right' ? 'text-right' : '', column.sticky ? 'sticky left-0 z-20 bg-[#16161d] -ml-5 pl-5 pr-4' : '']">{{ column.label }}</div>
               </div>
 
               <div v-if="filteredRequests.length" class="min-w-[1640px] divide-y divide-white/[0.06]">
-                <article
-                  v-for="request in filteredRequests"
-                  :key="request.id"
-                  class="grid gap-4 px-5 py-4 transition-colors hover:bg-white/[0.035]"
-                  :style="tableGridStyle"
-                >
-                  <div
-                    v-for="column in tableColumns"
-                    :key="column.key"
-                    class="flex min-w-0 items-center text-sm"
-                    :class="column.align === 'right' ? 'justify-end text-right' : ''"
-                  >
-                    <template v-if="column.key === 'title'">
-                      <div class="min-w-0">
-                        <div class="truncate font-semibold text-white">{{ request.title }}</div>
-                        <div class="mt-1 truncate text-[12px] text-[#7D8594]">{{ request.summary }}</div>
+                <article v-for="request in filteredRequests" :key="request.id" class="grid gap-4 px-5 py-4 transition-colors hover:bg-white/[0.035]" :style="activeTableGridStyle">
+                  <div v-for="column in activeTableColumns" :key="column.key" class="flex min-w-0 items-center text-sm" :class="[column.align === 'right' ? 'justify-end text-right' : '', column.sticky ? 'sticky left-0 z-10 -ml-5 bg-[#0D0D14] pl-5 pr-4' : '']">
+                    <template v-if="column.sticky">
+                      <div class="flex min-h-[48px] min-w-0 items-center">
+                        <div class="truncate font-semibold text-white">{{ request[column.key] }}</div>
                       </div>
                     </template>
                     <template v-else-if="column.key === 'status'">
-                      <span class="rounded-full px-2.5 py-1 text-[12px] font-semibold" :class="statusClass(request.status)">
-                        {{ request.status }}
-                      </span>
+                      <span class="rounded-full px-2.5 py-1 text-[12px] font-semibold" :class="statusClass(request.status)">{{ request.status }}</span>
                     </template>
                     <template v-else>
                       <span class="truncate text-[#C4C9D4]">{{ request[column.key] }}</span>
@@ -308,18 +200,14 @@
                 <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
                   <Icon icon="lucide:search-x" class="h-5 w-5 text-[#8B94A5]" />
                 </div>
-                <h2 class="text-lg font-semibold text-white">조건에 맞는 설비가 없습니다</h2>
+                <h2 class="text-lg font-semibold text-white">조건에 맞는 항목이 없습니다</h2>
                 <p class="mt-2 text-sm text-[#8B94A5]">필터를 줄이거나 전체 해제를 눌러 다시 확인해보세요.</p>
               </div>
             </div>
           </div>
 
           <div class="mt-8 grid gap-4 lg:grid-cols-[1fr_1fr_1fr]">
-            <article
-              v-for="insight in insights"
-              :key="insight.title"
-              class="rounded-lg border border-white/[0.08] bg-white/[0.04] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
-            >
+            <article v-for="insight in insights" :key="insight.title" class="rounded-lg border border-white/[0.08] bg-white/[0.04] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
               <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 text-accent">
                 <Icon :icon="insight.icon" class="h-5 w-5" />
               </div>
@@ -334,17 +222,35 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 
+const props = defineProps({
+  dashboardMenu: {
+    type: String,
+    default: 'requests',
+  },
+})
+
 const openFilterId = ref(null)
-const activeMenuId = ref('requests')
+const activeMenuId = ref(props.dashboardMenu)
+
+watch(
+  () => props.dashboardMenu,
+  (menuId) => {
+    if (dashboardMenus.some((menu) => menu.id === menuId)) {
+      activeMenuId.value = menuId
+      openFilterId.value = null
+    }
+  },
+)
 
 const selectedFilters = reactive({
   lineId: [],
   eqpId: [],
   serverModel: [],
   dcopModel: [],
+  ceId: [],
 })
 
 const filterSearch = reactive({
@@ -352,28 +258,23 @@ const filterSearch = reactive({
   eqpId: '',
   serverModel: '',
   dcopModel: '',
+  ceId: '',
 })
 
 const filterControls = [
-  {
-    id: 'lineId',
-    label: 'LINEID',
-    options: ['LINE-01', 'LINE-02', 'LINE-03', 'LINE-04'],
-  },
-  {
-    id: 'eqpId',
-    label: 'EQPID',
-    options: ['EQP-042', 'EQP-117', 'EQP-203', 'EQP-304', 'EQP-411'],
-  },
+  { id: 'lineId', label: 'LINEID', options: ['LINE-01', 'LINE-02', 'LINE-03', 'LINE-04'] },
+  { id: 'eqpId', label: 'EQPID', options: ['ABC123', 'DEF456', 'GHI789', 'JKL234', 'MNO567'] },
   {
     id: 'serverModel',
     label: 'SERVER MODEL',
     options: ['SRV-A100', 'SRV-B200', 'SRV-C300', 'SRV-X900'],
+    tooltip: '설비 TC를 구동하는 서버 하드웨어 또는 서버 프로파일 모델입니다.',
   },
   {
     id: 'dcopModel',
     label: 'DCOP MODEL',
     options: ['DCOP-7A', 'DCOP-8B', 'DCOP-9C', 'DCOP-X1'],
+    tooltip: '설비와 TC 사이의 데이터 수집/제어 연동에 사용하는 DCOP 모델입니다.',
   },
 ]
 
@@ -386,6 +287,13 @@ const dashboardMenus = [
     description: 'LINEID, EQPID, SERVER MODEL, DCOP MODEL 기준으로 설비 TC 현황을 확인합니다.',
   },
   {
+    id: 'automation',
+    icon: 'lucide:sparkles',
+    title: '설비 TC 파라미터',
+    caption: 'TC 파라미터 관리',
+    description: '설비별 TC 파라미터 후보와 반복 점검 기준을 확인합니다.',
+  },
+  {
     id: 'teams',
     icon: 'lucide:users',
     title: 'LINE별 보기',
@@ -395,16 +303,9 @@ const dashboardMenus = [
   {
     id: 'priority',
     icon: 'lucide:flag',
-    title: '점검 우선순위',
-    caption: '주의 설비 추적',
-    description: '주의, 점검중, 지연 상태의 설비를 먼저 확인합니다.',
-  },
-  {
-    id: 'automation',
-    icon: 'lucide:sparkles',
-    title: '자동화 후보',
-    caption: '반복 작업 탐색',
-    description: '반복되는 TC 점검 패턴을 찾아 자동화 후보로 전환합니다.',
+    title: 'CEID 매핑',
+    caption: 'RPTID / VID LIST',
+    description: 'LINEID, EQPID, CEID 기준으로 RPTID와 VID LIST 매핑을 확인합니다.',
   },
   {
     id: 'settings',
@@ -415,9 +316,7 @@ const dashboardMenus = [
   },
 ]
 
-const activeMenu = computed(() => {
-  return dashboardMenus.find((menu) => menu.id === activeMenuId.value) ?? dashboardMenus[0]
-})
+const activeMenu = computed(() => dashboardMenus.find((menu) => menu.id === activeMenuId.value) ?? dashboardMenus[0])
 
 const teamDistribution = [
   { team: 'SRV-A100', value: 34, color: '#38BDF8' },
@@ -434,9 +333,8 @@ const teamWorkload = [
 ]
 
 const tableColumns = [
-  { key: 'title', label: '설비' },
+  { key: 'eqpId', label: 'EQPID', sticky: true },
   { key: 'lineId', label: 'LINEID' },
-  { key: 'eqpId', label: 'EQPID' },
   { key: 'serverModel', label: 'SERVER MODEL' },
   { key: 'dcopModel', label: 'DCOP MODEL' },
   { key: 'tcVersion', label: 'TC VERSION' },
@@ -447,26 +345,44 @@ const tableColumns = [
 ]
 
 const tableGridStyle = {
-  gridTemplateColumns: 'minmax(300px,1.8fr) minmax(110px,0.7fr) minmax(120px,0.75fr) minmax(150px,0.9fr) minmax(150px,0.9fr) minmax(120px,0.75fr) minmax(110px,0.7fr) minmax(140px,0.85fr) minmax(110px,0.7fr) minmax(140px,0.85fr)',
+  gridTemplateColumns: 'minmax(132px,0.55fr) minmax(110px,0.7fr) minmax(150px,0.9fr) minmax(150px,0.9fr) minmax(120px,0.75fr) minmax(110px,0.7fr) minmax(140px,0.85fr) minmax(110px,0.7fr) minmax(140px,0.85fr)',
+}
+
+const ceFilterControls = [
+  { id: 'lineId', label: 'LINEID', options: ['12', '13', '14', '15'] },
+  { id: 'eqpId', label: 'EQPID', options: ['ABC123', 'DEF456', 'GHI789', 'JKL234'] },
+  { id: 'ceId', label: 'CEID', options: ['3021', '3022', '3023', '3024'] },
+]
+
+const ceTableColumns = [
+  { key: 'lineId', label: 'LINEID', sticky: true },
+  { key: 'eqpId', label: 'EQPID' },
+  { key: 'ceId', label: 'CEID' },
+  { key: 'rptId', label: 'RPTID' },
+  { key: 'vidList', label: 'VID LIST' },
+]
+
+const ceTableGridStyle = {
+  gridTemplateColumns: 'minmax(110px,0.5fr) minmax(130px,0.65fr) minmax(120px,0.6fr) minmax(120px,0.6fr) minmax(420px,2fr)',
 }
 
 const baseRequests = [
-  { id: 1, title: 'Main Litho TC', summary: '노광 설비 TC 운영 현황', lineId: 'LINE-01', eqpId: 'EQP-042', serverModel: 'SRV-A100', dcopModel: 'DCOP-7A', tcVersion: 'TC 4.2.1', status: '정상', lastSync: '오늘 10:42', owner: 'JG', updatedAt: '오늘 10:42' },
-  { id: 2, title: 'Etch Chamber TC', summary: '식각 챔버 TC 상태 점검', lineId: 'LINE-01', eqpId: 'EQP-117', serverModel: 'SRV-B200', dcopModel: 'DCOP-8B', tcVersion: 'TC 4.1.8', status: '주의', lastSync: '오늘 09:18', owner: 'TC-02', updatedAt: '오늘 09:18' },
-  { id: 3, title: 'CMP Process TC', summary: 'CMP 공정 설비 연동 현황', lineId: 'LINE-02', eqpId: 'EQP-203', serverModel: 'SRV-C300', dcopModel: 'DCOP-9C', tcVersion: 'TC 4.2.0', status: '점검중', lastSync: '어제 17:35', owner: 'TC-03', updatedAt: '어제 17:35' },
-  { id: 4, title: 'Diffusion TC', summary: '확산 공정 TC 패키지 상태', lineId: 'LINE-03', eqpId: 'EQP-304', serverModel: 'SRV-X900', dcopModel: 'DCOP-X1', tcVersion: 'TC 4.0.9', status: '정상', lastSync: '어제 15:04', owner: 'TC-01', updatedAt: '어제 15:04' },
-  { id: 5, title: 'Inspection TC', summary: '검사 설비 데이터 수집 상태', lineId: 'LINE-04', eqpId: 'EQP-411', serverModel: 'SRV-A100', dcopModel: 'DCOP-8B', tcVersion: 'TC 4.2.1', status: '지연', lastSync: '4월 15일', owner: 'TC-04', updatedAt: '4월 15일' },
+  { id: 1, lineId: 'LINE-01', eqpId: 'ABC123', serverModel: 'SRV-A100', dcopModel: 'DCOP-7A', tcVersion: 'TC 4.2.1', status: '정상', lastSync: '오늘 10:42', owner: 'JG', updatedAt: '오늘 10:42' },
+  { id: 2, lineId: 'LINE-01', eqpId: 'DEF456', serverModel: 'SRV-B200', dcopModel: 'DCOP-8B', tcVersion: 'TC 4.1.8', status: '주의', lastSync: '오늘 09:18', owner: 'TC-02', updatedAt: '오늘 09:18' },
+  { id: 3, lineId: 'LINE-02', eqpId: 'GHI789', serverModel: 'SRV-C300', dcopModel: 'DCOP-9C', tcVersion: 'TC 4.2.0', status: '점검중', lastSync: '어제 17:35', owner: 'TC-03', updatedAt: '어제 17:35' },
+  { id: 4, lineId: 'LINE-03', eqpId: 'JKL234', serverModel: 'SRV-X900', dcopModel: 'DCOP-X1', tcVersion: 'TC 4.0.9', status: '정상', lastSync: '어제 15:04', owner: 'TC-01', updatedAt: '어제 15:04' },
+  { id: 5, lineId: 'LINE-04', eqpId: 'MNO567', serverModel: 'SRV-A100', dcopModel: 'DCOP-8B', tcVersion: 'TC 4.2.1', status: '지연', lastSync: '4월 15일', owner: 'TC-04', updatedAt: '4월 15일' },
 ]
 
 const requestVariants = [
-  { title: 'Photo Track TC', summary: 'Photo track 설비 TC 연결 상태', lineId: 'LINE-01', eqpId: 'EQP-042', serverModel: 'SRV-A100', dcopModel: 'DCOP-7A' },
-  { title: 'Dry Etch TC', summary: 'Dry etch 설비 로그 수집 상태', lineId: 'LINE-01', eqpId: 'EQP-117', serverModel: 'SRV-B200', dcopModel: 'DCOP-8B' },
-  { title: 'Wet Bench TC', summary: 'Wet station TC 패키지 버전 확인', lineId: 'LINE-02', eqpId: 'EQP-203', serverModel: 'SRV-C300', dcopModel: 'DCOP-9C' },
-  { title: 'Furnace TC', summary: 'Furnace 설비 서버 모델 매핑', lineId: 'LINE-03', eqpId: 'EQP-304', serverModel: 'SRV-X900', dcopModel: 'DCOP-X1' },
-  { title: 'Metrology TC', summary: 'Metrology 설비 DCOP 연동 상태', lineId: 'LINE-04', eqpId: 'EQP-411', serverModel: 'SRV-A100', dcopModel: 'DCOP-8B' },
-  { title: 'Sorter TC', summary: 'Sorter 설비 TC 상태 추적', lineId: 'LINE-02', eqpId: 'EQP-117', serverModel: 'SRV-B200', dcopModel: 'DCOP-7A' },
-  { title: 'Implant TC', summary: 'Implant 설비 서버 동기화', lineId: 'LINE-03', eqpId: 'EQP-203', serverModel: 'SRV-C300', dcopModel: 'DCOP-X1' },
-  { title: 'Clean TC', summary: 'Clean 설비 TC 로그 점검', lineId: 'LINE-04', eqpId: 'EQP-304', serverModel: 'SRV-X900', dcopModel: 'DCOP-9C' },
+  { lineId: 'LINE-01', eqpId: 'ABC123', serverModel: 'SRV-A100', dcopModel: 'DCOP-7A' },
+  { lineId: 'LINE-01', eqpId: 'DEF456', serverModel: 'SRV-B200', dcopModel: 'DCOP-8B' },
+  { lineId: 'LINE-02', eqpId: 'GHI789', serverModel: 'SRV-C300', dcopModel: 'DCOP-9C' },
+  { lineId: 'LINE-03', eqpId: 'JKL234', serverModel: 'SRV-X900', dcopModel: 'DCOP-X1' },
+  { lineId: 'LINE-04', eqpId: 'MNO567', serverModel: 'SRV-A100', dcopModel: 'DCOP-8B' },
+  { lineId: 'LINE-02', eqpId: 'DEF456', serverModel: 'SRV-B200', dcopModel: 'DCOP-7A' },
+  { lineId: 'LINE-03', eqpId: 'GHI789', serverModel: 'SRV-C300', dcopModel: 'DCOP-X1' },
+  { lineId: 'LINE-04', eqpId: 'JKL234', serverModel: 'SRV-X900', dcopModel: 'DCOP-9C' },
 ]
 
 const statuses = ['정상', '주의', '점검중', '지연']
@@ -480,8 +396,6 @@ const generatedRequests = Array.from({ length: 28 }, (_, index) => {
 
   return {
     id,
-    title: variant.title,
-    summary: variant.summary,
     lineId: variant.lineId,
     eqpId: variant.eqpId,
     serverModel: variant.serverModel,
@@ -496,19 +410,27 @@ const generatedRequests = Array.from({ length: 28 }, (_, index) => {
 
 const requests = [...baseRequests, ...generatedRequests]
 
-const activeFilters = computed(() => {
-  return filterControls.flatMap((filter) => {
-    return selectedFilters[filter.id].map((value) => ({
-      id: filter.id,
-      label: filter.label,
-      value,
-    }))
-  })
-})
+const ceRequests = [
+  { id: 'ce-1', lineId: '12', eqpId: 'ABC123', ceId: '3021', rptId: '100', vidList: '1,2,3,100,1000' },
+  { id: 'ce-2', lineId: '12', eqpId: 'DEF456', ceId: '3022', rptId: '200', vidList: '4,5,6,101,1001' },
+  { id: 'ce-3', lineId: '13', eqpId: 'GHI789', ceId: '3021', rptId: '100', vidList: '7,8,9,110,1010' },
+  { id: 'ce-4', lineId: '13', eqpId: 'JKL234', ceId: '3023', rptId: '200', vidList: '10,11,12,120,1020' },
+  { id: 'ce-5', lineId: '14', eqpId: 'ABC123', ceId: '3024', rptId: '100', vidList: '13,14,15,130,1030' },
+  { id: 'ce-6', lineId: '15', eqpId: 'DEF456', ceId: '3022', rptId: '200', vidList: '16,17,18,140,1040' },
+]
+
+const activeFilterControls = computed(() => (activeMenuId.value === 'priority' ? ceFilterControls : filterControls))
+const activeTableColumns = computed(() => (activeMenuId.value === 'priority' ? ceTableColumns : tableColumns))
+const activeTableGridStyle = computed(() => (activeMenuId.value === 'priority' ? ceTableGridStyle : tableGridStyle))
+const activeRequests = computed(() => (activeMenuId.value === 'priority' ? ceRequests : requests))
+
+const activeFilters = computed(() => activeFilterControls.value.flatMap((filter) => {
+  return selectedFilters[filter.id].map((value) => ({ id: filter.id, label: filter.label, value }))
+}))
 
 const filteredRequests = computed(() => {
-  return requests.filter((request) => {
-    return filterControls.every((filter) => {
+  return activeRequests.value.filter((request) => {
+    return activeFilterControls.value.every((filter) => {
       const selectedValues = selectedFilters[filter.id]
       return !selectedValues.length || selectedValues.includes(request[filter.id])
     })
@@ -516,16 +438,22 @@ const filteredRequests = computed(() => {
 })
 
 const metrics = computed(() => [
-  { label: '전체 설비', value: requests.length },
-  { label: '정상', value: requests.filter((request) => request.status === '정상').length },
-  { label: '점검 필요', value: requests.filter((request) => request.status !== '정상').length },
+  activeMenuId.value === 'priority'
+    ? { label: '전체 CEID', value: ceRequests.length }
+    : { label: '전체 설비', value: requests.length },
+  activeMenuId.value === 'priority'
+    ? { label: 'RPTID 100', value: ceRequests.filter((request) => request.rptId === '100').length }
+    : { label: '정상', value: requests.filter((request) => request.status === '정상').length },
+  activeMenuId.value === 'priority'
+    ? { label: 'LINE 수', value: new Set(ceRequests.map((request) => request.lineId)).size }
+    : { label: '점검 필요', value: requests.filter((request) => request.status !== '정상').length },
 ])
 
 const insights = [
   {
     icon: 'lucide:activity',
     title: 'TC 동기화',
-    description: '최근 동기화 지연 설비를 LINEID와 EQPID 기준으로 좁혀 빠르게 확인할 수 있습니다.',
+    description: '최근 동기화 지연 설비를 LINEID와 EQPID 기준으로 빠르게 확인할 수 있습니다.',
   },
   {
     icon: 'lucide:server',
@@ -535,7 +463,7 @@ const insights = [
   {
     icon: 'lucide:timer',
     title: '운영 우선순위',
-    description: '주의, 점검중, 지연 상태의 설비를 우선 확인해 로그 다운로드와 원인 분석으로 연결합니다.',
+    description: '주의, 점검중, 지연 상태 설비를 우선 확인해 로그 다운로드와 원인 분석으로 연결합니다.',
   },
 ]
 
@@ -546,7 +474,6 @@ function toggleFilterPanel(filterId) {
 function filteredOptions(filter) {
   const keyword = filterSearch[filter.id].trim().toLowerCase()
   if (!keyword) return filter.options
-
   return filter.options.filter((option) => option.toLowerCase().includes(keyword))
 }
 
@@ -600,10 +527,8 @@ function escapeCsvValue(value) {
 }
 
 function downloadCsv() {
-  const header = tableColumns.map((column) => escapeCsvValue(column.label)).join(',')
-  const rows = filteredRequests.value.map((request) => {
-    return tableColumns.map((column) => escapeCsvValue(request[column.key])).join(',')
-  })
+  const header = activeTableColumns.value.map((column) => escapeCsvValue(column.label)).join(',')
+  const rows = filteredRequests.value.map((request) => activeTableColumns.value.map((column) => escapeCsvValue(request[column.key])).join(','))
   const csv = '\uFEFF' + [header, ...rows].join('\n')
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
@@ -627,7 +552,6 @@ function statusClass(status) {
 
   return classes[status]
 }
-
 </script>
 
 <style scoped>

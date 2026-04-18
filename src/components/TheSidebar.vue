@@ -120,18 +120,46 @@
 
     <!-- Nav Items -->
     <nav class="flex-1 px-3 space-y-0.5 overflow-y-auto">
-      <button
-        v-for="item in navItems"
-        :key="item.page"
-        @click="emit('navigate', item.page)"
-        class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-left"
-        :class="currentPage === item.page
-          ? 'bg-accent/10 text-accent border-l-2 border-accent pl-[10px]'
-          : 'text-[#9CA3B0] hover:text-white hover:bg-white/[0.04]'"
-      >
-        <Icon :icon="item.icon" class="w-4 h-4 flex-shrink-0" />
-        {{ item.label }}
-      </button>
+      <div v-for="item in navItems" :key="item.page">
+        <button
+          @click="handleNavClick(item)"
+          class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-left"
+          :class="currentPage === item.page
+            ? 'bg-accent/10 text-accent border-l-2 border-accent pl-[10px]'
+            : 'text-[#9CA3B0] hover:text-white hover:bg-white/[0.04]'"
+          :aria-expanded="item.page === 'dashboard' ? isDashboardExpanded : undefined"
+        >
+          <Icon :icon="item.icon" class="w-4 h-4 flex-shrink-0" />
+          <span class="min-w-0 flex-1 truncate">{{ item.label }}</span>
+          <Icon
+            v-if="item.page === 'dashboard'"
+            icon="lucide:chevron-down"
+            class="h-4 w-4 flex-shrink-0 transition-transform"
+            :class="isDashboardExpanded ? 'rotate-180' : ''"
+          />
+        </button>
+
+        <Transition name="sidebar-submenu">
+          <div
+            v-if="item.page === 'dashboard' && isDashboardExpanded"
+            class="ml-4 mt-1 space-y-1 border-l border-white/[0.08] pl-3"
+          >
+            <button
+              v-for="subItem in dashboardSubItems"
+              :key="subItem.id"
+              type="button"
+              class="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[12px] font-semibold transition-colors"
+              :class="currentPage === 'dashboard' && dashboardMenu === subItem.id
+                ? 'bg-accent/10 text-accent'
+                : 'text-[#7D8594] hover:bg-white/[0.04] hover:text-white'"
+              @click="selectDashboardMenu(subItem.id)"
+            >
+              <span class="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-current"></span>
+              <span class="truncate">{{ subItem.label }}</span>
+            </button>
+          </div>
+        </Transition>
+      </div>
     </nav>
 
     <!-- User Info -->
@@ -357,14 +385,18 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import GatewayFlowIcon from './GatewayFlowIcon.vue'
 
-defineProps({
+const props = defineProps({
   currentPage: {
     type: String,
     required: true,
+  },
+  dashboardMenu: {
+    type: String,
+    default: 'requests',
   },
 })
 
@@ -373,6 +405,7 @@ const emit = defineEmits(['navigate'])
 const expandedChatId = ref(null)
 const isSettingsOpen = ref(false)
 const activeSettingsTab = ref('profile')
+const isDashboardExpanded = ref(props.currentPage === 'dashboard')
 
 const openSettings = () => {
   isSettingsOpen.value = true
@@ -395,6 +428,15 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleKeydown)
 })
+
+watch(
+  () => props.currentPage,
+  (page) => {
+    if (page === 'dashboard') {
+      isDashboardExpanded.value = true
+    }
+  },
+)
 
 const settingsTabs = [
   { id: 'profile', label: '계정', icon: 'lucide:user-round' },
@@ -674,6 +716,29 @@ const deleteChat = (chatId) => {
   }
 }
 
+const dashboardSubItems = [
+  { id: 'requests', label: '설비 TC 현황' },
+  { id: 'automation', label: '설비 TC 파라미터' },
+  { id: 'teams', label: 'LINE별 보기' },
+  { id: 'priority', label: 'CEID 매핑' },
+  { id: 'settings', label: '표시 설정' },
+]
+
+const handleNavClick = (item) => {
+  if (item.page === 'dashboard') {
+    isDashboardExpanded.value = !isDashboardExpanded.value
+    emit('navigate', 'dashboard', { dashboardMenu: props.dashboardMenu })
+    return
+  }
+
+  emit('navigate', item.page)
+}
+
+const selectDashboardMenu = (menuId) => {
+  isDashboardExpanded.value = true
+  emit('navigate', 'dashboard', { dashboardMenu: menuId })
+}
+
 const navItems = [
   { page: 'home',         label: '홈',       icon: 'lucide:home' },
   { page: 'dashboard',    label: '대시보드', icon: 'lucide:layout-dashboard' },
@@ -708,5 +773,16 @@ const navItems = [
 .settings-modal-leave-to section {
   opacity: 0;
   transform: translateY(8px) scale(0.98);
+}
+
+.sidebar-submenu-enter-active,
+.sidebar-submenu-leave-active {
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.sidebar-submenu-enter-from,
+.sidebar-submenu-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 </style>

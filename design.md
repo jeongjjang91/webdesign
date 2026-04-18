@@ -452,9 +452,9 @@ shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]
 메뉴:
 
 - 설비 TC 현황
+- 설비 TC 파라미터
 - LINE별 보기
-- 점검 우선순위
-- 자동화 후보
+- CEID 매핑
 - 표시 설정
 
 디자인:
@@ -529,7 +529,6 @@ shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]
 
 - 설비
 - LINEID
-- EQPID
 - SERVER MODEL
 - DCOP MODEL
 - TC VERSION
@@ -543,6 +542,19 @@ shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]
 - 기본 예시 5개
 - 생성 예시 28개
 - 총 33개 row
+- 첫 번째 컬럼은 `EQPID`이며, 기존 별도 `EQPID` 컬럼은 제거했습니다.
+- 가로 스크롤 시 첫 번째 `EQPID` 컬럼은 sticky로 고정합니다.
+- `SERVER MODEL`, `DCOP MODEL` 필터 제목 옆에는 정보 아이콘을 표시합니다. 아이콘 hover 시 고대비 툴팁이 필터 위쪽에 표시되며, accent border와 blue glow shadow로 가독성을 높입니다.
+- 정보 아이콘은 outline 형태를 유지하고 `text-accent (#0EA5E9)`, `border-accent/35`, `bg-accent/10`을 적용해 시스템 알림처럼 명확하게 보이도록 합니다.
+- FastAPI 연동을 고려해 테이블 첫 컬럼도 `title` 같은 별도 표시 필드가 아니라 `tableColumns`의 `key`를 그대로 사용해 렌더링합니다. 이후 API 필드명이 확정되면 `tableColumns`와 필터 key만 맞추면 됩니다.
+- 세 번째 내부 메뉴 `CEID 매핑`은 별도 테이블 구조를 사용합니다.
+  - 필터: LINEID, EQPID, CEID
+  - 컬럼: LINEID, EQPID, CEID, RPTID, VID LIST
+  - LINEID 예시: `12`, `13`
+  - EQPID 예시: `ABC123`
+  - CEID 예시: `3021`, `3022`
+  - RPTID 예시: `100`, `200`
+  - VID LIST 예시: `1,2,3,100,1000`
 
 테이블 폭:
 

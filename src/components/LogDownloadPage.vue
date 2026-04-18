@@ -16,11 +16,10 @@
             <span class="text-xs font-semibold text-accent/90">Internal Log Download</span>
           </div>
           <h1 class="text-4xl font-bold leading-tight tracking-tight lg:text-5xl">
-            설비 로그<br />
-            Download
+            설비 로그 다운로드<br />
           </h1>
           <p class="mt-4 max-w-2xl text-[15px] leading-relaxed text-[#9CA3B0]">
-            LineID, EQPID, 날짜, 로그 유형을 선택해 장애 분석과 VOC 대응에 필요한 로그 패키지를 생성합니다.
+            라인, 설비명, 날짜, 로그 유형을 선택해 장애 분석과 VOC 대응에 필요한 로그를 생성합니다.
           </p>
         </div>
 
@@ -153,7 +152,7 @@
                 <span class="app-cta__glow"></span>
                 <span class="app-cta__content">
                   <Icon icon="lucide:package-check" class="h-4 w-4" />
-                  다운로드 패키지 생성
+                  다운로드
                 </span>
               </button>
             </div>
@@ -163,7 +162,7 @@
             <div class="mb-4 flex items-center justify-between">
               <div>
                 <h2 class="text-lg font-bold text-white">생성 파일</h2>
-                <p class="mt-1 text-sm text-[#8B94A5]">패키지에 포함될 로그 파일 미리보기입니다.</p>
+                <p class="mt-1 text-sm text-[#8B94A5]">압축파일에 포함될 로그 파일 미리보기입니다.</p>
               </div>
               <Icon icon="lucide:file-archive" class="h-5 w-5 text-accent" />
             </div>

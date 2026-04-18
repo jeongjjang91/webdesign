@@ -1,7 +1,11 @@
 <template>
   <div class="flex min-h-screen bg-[#0A0A0F] text-white font-pretendard">
     <!-- Sidebar -->
-    <TheSidebar :currentPage="currentPage" @navigate="navigateTo" />
+    <TheSidebar
+      :currentPage="currentPage"
+      :dashboardMenu="dashboardMenu"
+      @navigate="navigateTo"
+    />
 
     <!-- Content area -->
     <main class="ml-[220px] flex-1 h-screen overflow-hidden flex flex-col">
@@ -10,6 +14,7 @@
           :is="currentComponent"
           :key="currentComponentKey"
           :initial-prompt="chatInitialPrompt"
+          :dashboard-menu="dashboardMenu"
           class="min-h-0 w-full flex-1 overflow-y-auto"
           @navigate="navigateTo"
         />
@@ -37,9 +42,14 @@ import TheFooter from './components/TheFooter.vue'
 const currentPage = ref('home')
 const chatInitialPrompt = ref('')
 const chatSessionKey = ref(0)
+const dashboardMenu = ref('requests')
 
 function navigateTo(page, initialPrompt = '') {
-  chatInitialPrompt.value = page === 'chat' ? initialPrompt : ''
+  if (page === 'dashboard' && typeof initialPrompt === 'object' && initialPrompt?.dashboardMenu) {
+    dashboardMenu.value = initialPrompt.dashboardMenu
+  }
+
+  chatInitialPrompt.value = page === 'chat' && typeof initialPrompt === 'string' ? initialPrompt : ''
   if (page === 'chat') {
     chatSessionKey.value += 1
   }
