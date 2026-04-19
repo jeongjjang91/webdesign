@@ -4,11 +4,16 @@
     <TheSidebar
       :currentPage="currentPage"
       :dashboardMenu="dashboardMenu"
+      :collapsed="isSidebarCollapsed"
       @navigate="navigateTo"
+      @toggle-sidebar="toggleSidebar"
     />
 
     <!-- Content area -->
-    <main class="ml-[220px] flex-1 h-screen overflow-hidden flex flex-col">
+    <main
+      class="flex h-screen flex-1 flex-col overflow-hidden transition-[margin] duration-300"
+      :class="isSidebarCollapsed ? 'ml-[72px]' : 'ml-[220px]'"
+    >
       <Transition name="fade" mode="out-in" appear>
         <component
           :is="currentComponent"
@@ -43,6 +48,11 @@ const currentPage = ref('home')
 const chatInitialPrompt = ref('')
 const chatSessionKey = ref(0)
 const dashboardMenu = ref('requests')
+const isSidebarCollapsed = ref(false)
+
+function toggleSidebar() {
+  isSidebarCollapsed.value = !isSidebarCollapsed.value
+}
 
 function navigateTo(page, initialPrompt = '') {
   if (page === 'dashboard' && typeof initialPrompt === 'object' && initialPrompt?.dashboardMenu) {

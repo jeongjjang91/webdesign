@@ -175,12 +175,12 @@
           <div class="w-full overflow-hidden rounded-lg border border-white/[0.08] bg-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
             <div class="overflow-auto" :class="filteredRequests.length >= 30 ? 'max-h-[640px]' : ''">
               <div class="grid min-w-[1640px] gap-4 border-b border-white/[0.08] bg-white/[0.04] px-5 py-3 text-[12px] font-semibold text-[#8B94A5]" :style="activeTableGridStyle">
-                <div v-for="column in activeTableColumns" :key="column.key" :class="[column.align === 'right' ? 'text-right' : '', column.sticky ? 'sticky left-0 z-20 bg-[#16161d] -ml-5 pl-5 pr-4' : '']">{{ column.label }}</div>
+                <div v-for="column in activeTableColumns" :key="column.key" :class="[column.align === 'right' ? 'text-right' : '', column.sticky ? 'sticky left-0 z-20 -ml-5 pl-5 pr-4' : '']">{{ column.label }}</div>
               </div>
 
               <div v-if="filteredRequests.length" class="min-w-[1640px] divide-y divide-white/[0.06]">
                 <article v-for="request in filteredRequests" :key="request.id" class="grid gap-4 px-5 py-4 transition-colors hover:bg-white/[0.035]" :style="activeTableGridStyle">
-                  <div v-for="column in activeTableColumns" :key="column.key" class="flex min-w-0 items-center text-sm" :class="[column.align === 'right' ? 'justify-end text-right' : '', column.sticky ? 'sticky left-0 z-10 -ml-5 bg-[#0D0D14] pl-5 pr-4' : '']">
+                  <div v-for="column in activeTableColumns" :key="column.key" class="flex min-w-0 items-center text-sm" :class="[column.align === 'right' ? 'justify-end text-right' : '', column.sticky ? 'sticky left-0 z-10 -ml-5 pl-5 pr-4' : '']">
                     <template v-if="column.sticky">
                       <div class="flex min-h-[48px] min-w-0 items-center">
                         <div class="truncate font-semibold text-white">{{ request[column.key] }}</div>

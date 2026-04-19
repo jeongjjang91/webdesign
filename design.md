@@ -195,6 +195,19 @@ shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]
 
 파일: `src/components/TheSidebar.vue`
 
+최신 사이드바 구조:
+
+- 상단 `TC Assistant` 로고/문구는 홈 이동 버튼으로 사용합니다.
+- 별도의 `홈` 메뉴 항목은 기능 목록에서 제거했습니다.
+- `새 채팅` 버튼은 ChatGPT 스타일의 작성 아이콘(`lucide:square-pen`)과 `새 채팅` 문구를 사용합니다.
+- `새 채팅` 버튼 오른쪽에는 사이드바 접기/펼치기 버튼을 배치합니다.
+- 사이드바를 접으면 폭은 `72px`로 줄어들고 아이콘만 남습니다.
+- 사이드바를 펼치면 폭은 `220px`이며 메뉴명, 최근 대화, 계정 정보가 표시됩니다.
+- 접힌 상태에서도 새 채팅, 주요 메뉴 이동, 설정 진입, 사이드바 펼치기가 가능합니다.
+- 정보 배치 순서는 `TC Assistant 홈 버튼` -> `새 채팅 / 사이드바 접기` -> `기능 메뉴` -> `최근 대화 이력` -> `계정 정보`입니다.
+- 기능 메뉴에는 대시보드, 기능, 적용 계획, 활용 사례, 후기, 개발 이력, 시작하기가 표시됩니다.
+- 최근 대화 이력은 기능 메뉴 아래에 표시하며, `최대 3시간까지 보관` 안내 문구를 유지합니다.
+
 구성:
 
 - 상단 로고: `TC Assistant`, `Beta`
@@ -252,6 +265,8 @@ shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]
 상단 문구:
 
 - 제목: `TC AI Bot 적용 계획`
+- 적용 계획은 `UI 개발 계획`, `서버 개발 계획` 두 개의 세로 타임라인으로 분리합니다.
+- 각 타임라인은 독립적인 세로 라인과 노드를 가지며, 단계 관리 팝업에서 트랙을 선택해 단계를 추가/수정할 수 있습니다.
 - 설명: `사내 TC 시스템 VOC 대응을 자동화하기 위해 DB 조회, 문서 검색, 로그 분석, 지식 축적 순서로 단계적으로 기능을 확장합니다.`
 
 단계 구성:
@@ -755,3 +770,219 @@ const dashboardTables = {
 - API 연결 시 엔드포인트 분리
 
 현재는 `설비 TC 현황` 중심의 테이블을 기반으로 확장 테스트를 한 상태입니다.
+
+## 14. 최신 개발 반영 요약
+
+이 섹션은 2026-04 기준 최신 UI 구현 상태를 사내 작업자가 빠르게 파악하기 위한 요약입니다.
+
+### 14.1 앱 진입 및 라우팅
+
+- 앱 최초 진입 시 기본 화면은 `home`입니다.
+- `src/App.vue`의 `currentPage` 기본값은 `home`으로 유지합니다.
+- 사이드바 권한 필터는 `home` 화면을 강제로 다른 메뉴로 이동시키지 않습니다.
+- 상단 `TC Assistant` 로고/문구를 클릭하면 항상 `home`으로 이동합니다.
+- 별도 `vue-router`는 아직 사용하지 않고, `currentPage`와 `pageMap` 기반으로 화면을 전환합니다.
+- `chat` 페이지는 `chatSessionKey`를 사용해 새 채팅 진입 시 컴포넌트를 다시 마운트합니다.
+
+### 14.2 사이드바 최신 구조
+
+- 파일: `src/components/TheSidebar.vue`
+- 사이드바는 ChatGPT 스타일 앱형 내비게이션 구조입니다.
+- 정보 배치 순서:
+  1. `TC Assistant` 홈 이동 버튼
+  2. `새 채팅` 버튼 + 사이드바 접기/펼치기 버튼
+  3. 기능 메뉴
+  4. 최근 대화 이력
+  5. 계정 정보 및 설정 버튼
+- 기능 메뉴에서 `홈` 항목은 제거했습니다.
+- 홈 이동은 사이드바 상단 `TC Assistant` 영역이 담당합니다.
+- `새 채팅` 버튼은 `lucide:square-pen` 아이콘과 `새 채팅` 문구를 사용합니다.
+- 사이드바 접힘 상태:
+  - 펼침 폭: `220px`
+  - 접힘 폭: `72px`
+  - 접힌 상태에서는 아이콘만 표시합니다.
+  - 본문 영역의 좌측 여백도 `ml-[220px]` / `ml-[72px]`로 함께 전환됩니다.
+- 접힌 상태에서도 새 채팅, 메뉴 이동, 설정 진입, 다시 펼치기가 가능합니다.
+
+### 14.3 권한 모델
+
+- SSO 인증 사용자는 기본적으로 `User` 권한입니다.
+- 특정 계정에는 추가 권한을 부여할 수 있습니다.
+- 권한 체계:
+  - `User`: 일반 조회 사용자
+  - `Power User`: 운영 담당자
+  - `TC PI`: 개발/설정 담당자
+  - `Administrator`: 최고 관리자
+- 현재 `jg91.jang@samsung.com`은 항상 `Administrator`로 매핑합니다.
+- 설정창 `권한` 탭에서 계정별 추가 권한과 권한별 접근 UI를 조정할 수 있습니다.
+- 현재 권한 설정은 프론트엔드 상태 기반입니다. 운영에서는 SSO 이메일 기준으로 API에서 권한 목록을 받아오는 구조로 교체해야 합니다.
+
+### 14.4 채팅 페이지
+
+- 파일: `src/components/ChatbotPage.vue`
+- 상단 헤더의 `TC AI Bot` 옆 아이콘은 제거했습니다.
+- 메시지 버블의 assistant 아바타는 `TcAiBotIcon.vue`를 사용합니다.
+- 사용자 메시지 전송 후 assistant 응답은 프론트엔드 `setInterval()` 기반의 스트리밍 시뮬레이션으로 출력됩니다.
+- 긴 응답 테스트 키워드: `스트리밍`, `긴 응답`, `긴응답`, `길게`, `테스트`, `long`, `stream`
+- 긴 응답은 더 천천히 보이도록 일반 응답보다 긴 interval을 사용합니다.
+- 응답 생성 중에는 메시지 끝의 `|` 커서를 표시하지 않습니다.
+- 응답 텍스트가 아직 없을 때는 빈 말풍선을 표시하지 않고, assistant 아이콘 주위의 로딩 스피너만 표시합니다.
+- assistant 아이콘 로딩 스피너는 응답 스트리밍 중인 메시지에만 표시되고, 응답 완료 시 사라집니다.
+- 응답 완료 후에는 기존처럼 응답 평가 UI가 표시됩니다.
+
+### 14.5 TC Assistant 아이콘
+
+- 파일: `src/components/TcAiBotIcon.vue`
+- 현재 아이콘은 기존 TC Bot 스타일 SVG입니다.
+- 잠시 네트워크 노드형 아이콘으로 변경했다가 원복했습니다.
+- 향후 Gemini 등으로 아이콘 파일을 새로 만들 경우:
+  - SVG 우선
+  - 투명 배경 PNG 보조
+  - 24px, 32px에서도 식별 가능해야 함
+  - 텍스트 삽입 금지
+  - 흰 배경 포함 금지
+- SVG로 받을 경우 `TcAiBotIcon.vue` 안에 직접 반영하면 확대/축소 시 깨지지 않습니다.
+
+### 14.6 대시보드
+
+- 파일: `src/components/DashboardSection.vue`
+- 대시보드 메뉴는 메인 사이드바의 하위 메뉴로 이동했습니다.
+- 대시보드 본문 안의 별도 좌측 메뉴는 제거했습니다.
+- 사이드바 대시보드 하위 메뉴:
+  - 설비 TC 현황
+  - 설비 TC 파라미터
+  - LINE별 보기
+  - CEID 매핑
+  - 표시 설정
+- 첫 번째 테이블의 첫 컬럼은 `EQPID`입니다.
+- 가로 스크롤 시 첫 컬럼은 sticky로 고정합니다.
+- 첫 컬럼의 텍스트 강조는 유지하되, 검은 배경 블록은 제거했습니다.
+- 서버 API 연동을 고려해 테이블은 `activeTableColumns`와 `activeRequests` 기반으로 렌더링합니다.
+- 향후 FastAPI 응답 필드가 확정되면 column key와 필터 key를 API 필드명에 맞추면 됩니다.
+
+### 14.7 적용 계획
+
+- 파일: `src/components/HowItWorksSection.vue`
+- 적용 계획은 두 개의 세로 타임라인으로 분리합니다.
+  - `UI 개발 계획`
+  - `서버 개발 계획`
+- 기존 `LLM 개발 계획` 명칭은 `서버 개발 계획`으로 변경했습니다.
+- 적용 계획 관리 팝업에서 단계 추가/수정 시 `트랙`을 선택할 수 있습니다.
+- 현재 단계 데이터는 컴포넌트 내부 상태로 관리합니다.
+- 운영에서 영구 저장이 필요하면 API 또는 localStorage 연동이 필요합니다.
+
+### 14.8 로그 다운로드
+
+- 파일: `src/components/LogDownloadPage.vue`
+- 필터 조건: LineID, EQPID, 날짜, 로그 유형, TBL 로그 병합, 메일주소
+- 메일주소 기본값은 `jg91.jang@samsung.com`입니다.
+- 날짜는 오늘부터 한 달 전까지만 선택 가능하도록 제한합니다.
+- LineID와 EQPID는 검색 가능한 드롭다운입니다.
+
+## 15. 사내 AI Agent 참고사항
+
+사내 AI Agent가 이 프로젝트를 이어받아 작업할 때는 아래 내용을 우선 확인해야 합니다.
+
+### 15.1 작업 전 확인
+
+- 현재 작업 디렉터리: `C:\project\webdesign`
+- 주요 프레임워크: Vue 3 + Vite + Tailwind CSS
+- 실행 확인 명령:
+
+```bash
+npm.cmd run build
+```
+
+- 개발 서버 실행:
+
+```bash
+npm.cmd run dev -- --host 0.0.0.0
+```
+
+- 브라우저 접속:
+
+```text
+http://localhost:5173/
+```
+
+### 15.2 구현 원칙
+
+- 사용자가 별도 요청하지 않으면 기존 구조를 크게 바꾸지 말고 현재 컴포넌트 기반 구조를 유지합니다.
+- 아직 `vue-router`, `pinia`, 차트 라이브러리는 사용하지 않습니다.
+- 화면 전환은 `App.vue`의 `currentPage`, `pageMap`, `navigateTo()` 흐름을 따릅니다.
+- 사이드바 권한/메뉴 구조는 `TheSidebar.vue` 내부 상태 기반입니다.
+- 운영 연동 전까지 권한, 최근 대화, 설정값은 프론트엔드 mock 상태로 취급합니다.
+- API 연동이 들어오면 기존 mock 배열을 제거하기보다 API 응답을 기존 구조에 매핑하는 방식이 안전합니다.
+
+### 15.3 주의할 파일
+
+- `src/App.vue`: 페이지 전환, 사이드바 접힘 상태, 채팅 세션 키를 관리합니다.
+- `src/components/TheSidebar.vue`: 사이드바 UI, 접힘/펼침, 권한 모델, 최근 대화 mock, 설정 모달을 관리합니다.
+- `src/components/ChatbotPage.vue`: 채팅 스트리밍 시뮬레이션, assistant 로딩 스피너, 표/코드 렌더링을 관리합니다.
+- `src/components/DashboardSection.vue`: 대시보드 하위 메뉴별 테이블/필터 구조를 관리합니다.
+- `src/components/HowItWorksSection.vue`: UI/서버 개발 계획 타임라인과 단계 관리 팝업을 관리합니다.
+- `src/components/LogDownloadPage.vue`: 사내 로그 다운로드 필터와 요청 UI를 관리합니다.
+- `src/components/TcAiBotIcon.vue`: 메인 화면 및 채팅 버블에서 사용하는 TC Bot 아이콘입니다.
+- `src/assets/main.css`: 공통 CTA 버튼 스타일 `.app-cta` 계열을 관리합니다.
+
+### 15.4 채팅 스트리밍 관련
+
+- 현재 스트리밍은 실제 API 스트리밍이 아니라 프론트엔드 시뮬레이션입니다.
+- 실제 LLM API 연결 시에는 `sendMessage()` 내부의 `generateReply()` 호출을 API stream reader 또는 SSE로 교체합니다.
+- 스트리밍 중에는 assistant 메시지 객체의 `streaming`이 `true`입니다.
+- 스트리밍 중에는 아이콘 주변 spinner가 표시됩니다.
+- 텍스트가 없으면 말풍선은 숨기고, 텍스트가 들어오면 말풍선을 표시합니다.
+- 응답 완료 후 `finalizeAssistantMessage()`가 표/코드 렌더링을 수행합니다.
+
+### 15.5 권한/SSO 연동 방향
+
+- 현재 SSO 사용자 이메일은 `TheSidebar.vue`의 `ssoUserEmail` 상수로 mock 처리합니다.
+- 운영에서는 SSO에서 받은 이메일을 API로 전달하고, API 응답으로 권한을 결정하는 구조가 필요합니다.
+- 예상 API 응답 예시:
+
+```json
+{
+  "email": "jg91.jang@samsung.com",
+  "role": "administrator",
+  "allowedPages": ["dashboard", "features", "how", "usecases", "testimonials", "security", "cta"]
+}
+```
+
+- 이 응답을 받으면 `roleAccounts`, `roleAccess` mock을 서버 응답 기반으로 교체하면 됩니다.
+
+### 15.6 FastAPI 연동 방향
+
+- 로그 다운로드:
+  - 프론트 필터값을 JSON으로 FastAPI에 전달합니다.
+  - 서버는 요청 ID, 상태, 파일 목록, 다운로드 링크, 메일 발송 상태를 반환하는 구조가 좋습니다.
+- 대시보드:
+  - 현재 `requests`, `ceRequests` mock 데이터를 API 응답으로 교체합니다.
+  - 컬럼 key와 API 필드명을 맞추는 것이 가장 중요합니다.
+- 채팅:
+  - 실제 스트리밍은 `StreamingResponse` 또는 SSE 방식으로 연결할 수 있습니다.
+
+### 15.7 디자인 주의사항
+
+- 주요 CTA는 `.app-cta`, `.app-cta--sm`, `.app-cta--wide`, `.app-cta--icon`을 우선 사용합니다.
+- 다크/라이트 모드를 넣으려면 직접 색상값을 CSS 변수와 Tailwind 토큰으로 점진 교체해야 합니다.
+- 현재 코드에는 `bg-[#...]`, `text-[#...]` 직접 색상값이 많이 남아 있습니다.
+- 큰 색상 변경은 단일 컴포넌트만 수정하지 말고 `main.css` 또는 Tailwind 토큰화를 먼저 검토해야 합니다.
+
+### 15.8 Git 및 검증
+
+- 변경 후 기본 검증은 항상 실행합니다.
+
+```bash
+npm.cmd run build
+```
+
+- 사용자가 Git 반영을 요청하면:
+
+```bash
+git status --short
+git add -A
+git commit -m "작업 내용 요약"
+git push origin master
+```
+
+- 사용자가 명시적으로 요청하지 않으면 자동 커밋/푸시는 하지 않습니다.

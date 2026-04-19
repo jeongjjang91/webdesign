@@ -1,8 +1,7 @@
-<template>
+﻿<template>
   <div class="flex flex-col h-full bg-[#0A0A0F]">
     <!-- Header -->
     <div class="px-6 py-4 border-b border-white/[0.06] flex items-center gap-3 flex-shrink-0">
-      <TcAiBotIcon size="md" label="TC AI Bot" class="flex-shrink-0" />
       <div>
         <p class="text-sm font-semibold text-white">TC AI Bot</p>
         <p class="text-xs text-muted">스트리밍 응답 지원</p>
@@ -27,15 +26,21 @@
             class="w-4 h-4 text-accent"
           />
         </div>
-        <TcAiBotIcon
+        <div
           v-else
-          size="sm"
-          label="TC AI Bot"
-          class="flex-shrink-0 mt-0.5"
-        />
+          class="bot-avatar-wrap mt-0.5 flex-shrink-0"
+          :class="msg.streaming ? 'bot-avatar-wrap--loading' : ''"
+        >
+          <TcAiBotIcon
+            size="sm"
+            label="TC AI Bot"
+            class="relative z-10"
+          />
+        </div>
 
         <!-- Bubble -->
         <div
+          v-if="!(msg.role === 'assistant' && msg.streaming && !msg.content)"
           class="max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed"
           :class="msg.role === 'user'
             ? 'bg-[#123B52] text-white rounded-tr-sm border border-sky-400/10'
@@ -49,18 +54,13 @@
           />
           <span v-else-if="msg.role === 'assistant'" class="whitespace-pre-wrap">{{ msg.content }}</span>
           <span v-else class="whitespace-pre-wrap">{{ msg.content }}</span>
-          <span
-            v-if="msg.streaming"
-            class="inline-block w-[2px] h-[14px] bg-current ml-0.5 align-middle"
-            style="animation: blink 0.8s step-end infinite"
-          />
 
           <div
             v-if="msg.role === 'assistant' && !msg.streaming && msg.id !== 0"
             class="mt-3 border-t border-white/[0.06] pt-2"
           >
             <div class="flex flex-wrap items-center gap-2">
-              <span class="text-[11px] text-[#8B94A5]">응답 품질</span>
+              <span class="text-[11px] text-[#8B94A5]">응답 평가</span>
               <button
                 type="button"
                 class="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-medium transition-colors"
@@ -164,7 +164,7 @@ const messages = ref([
   {
     id: 0,
     role: 'assistant',
-    content: 'TC AI Bot 입니다 무엇을 도와드릴까요?',
+    content: 'TC AI Bot입니다. 무엇을 도와드릴까요?',
     streaming: false,
     renderedContent: '',
     feedback: null,
@@ -218,6 +218,7 @@ function sendMessage(textOverride = '') {
   messages.value.push(assistantMsg)
   scrollToBottom()
 
+  const streamDelay = reply.length > 500 ? 70 : 35
   let i = 0
   replyTimer = setInterval(() => {
     if (i < reply.length) {
@@ -230,7 +231,7 @@ function sendMessage(textOverride = '') {
       clearReplyTimer()
       finalizeAssistantMessage(assistantMsg)
     }
-  }, 30)
+  }, streamDelay)
 }
 
 function clearReplyTimer() {
@@ -284,16 +285,18 @@ onBeforeUnmount(() => {
 })
 
 function generateReply(userText) {
-  const textReply = '좋은 질문이에요. TC AI Bot은 반복되는 문서 정리, 고객 응대 초안, 코드 분석 같은 업무를 빠르게 처리할 수 있도록 도와줍니다. 필요한 결과 형식을 말씀해주시면 그 형식에 맞춰 더 정확하게 정리해드릴게요.'
+  const textReply = '좋아요. TC Assistant는 반복되는 운영 질문, 로그 다운로드 조건 정리, 설비 TC 현황 확인 같은 업무를 빠르게 처리할 수 있도록 도와줍니다. 필요한 결과 형식을 알려주시면 그 형식에 맞춰 정리해드릴게요.'
+
   const tableReply = `아래처럼 표로 정리할 수 있습니다.
 
 | 항목 | 담당 | 상태 |
 | --- | --- | --- |
-| 회의록 요약 | 김지은 | 완료 |
-| 고객 답변 초안 | 정태준 | 진행중 |
-| 보안 정책 FAQ | 한소영 | 검토중 |
+| 로그 다운로드 조건 | JG | 완료 |
+| CEID 매핑 테이블 | TC-01 | 진행중 |
+| 권한별 UI 접근 | TC PI | 검토중 |
 
-필요하면 부서별로 다시 나눠드릴게요.`
+필요하면 CSV 다운로드가 가능한 표 형태로도 보여드릴 수 있습니다.`
+
   const codeReply = `예시 코드는 아래와 같습니다.
 
 \`\`\`python
@@ -301,32 +304,61 @@ def find_risk_tasks(tasks):
     risk_tasks = []
 
     for task in tasks:
-        if "리스크" in task:
+        if "risk" in task:
             risk_tasks.append(task)
 
     return risk_tasks
 
-tasks = ["회의록 요약", "고객 답변 작성", "리스크 정리"]
+tasks = ["log download", "ceid mapping", "risk review"]
 print(find_risk_tasks(tasks))
 \`\`\`
 
 이 구조를 실제 업무 데이터에 맞춰 확장할 수 있습니다.`
 
-  if (userText.includes('표') || userText.toLowerCase().includes('table')) {
+  const longStreamingReply = `스트리밍 테스트용 긴 응답입니다.
+
+요청하신 내용이 들어오면 TC Assistant는 먼저 질문의 목적을 분류합니다. 예를 들어 사용자가 설비 로그를 내려받고 싶은지, TC 파라미터를 확인하고 싶은지, CEID와 RPTID 매핑을 비교하고 싶은지, 또는 운영 이력과 개발 계획을 확인하고 싶은지를 구분합니다. 이 단계는 실제 운영에서는 API 서버에서 권한과 요청 유형을 함께 확인하는 방식으로 확장할 수 있습니다.
+
+첫 번째 단계는 사용자 권한 확인입니다. SSO로 접속한 사용자는 기본적으로 User 권한을 받고, 특정 계정에 Power User, TC PI, Administrator 권한이 추가되어 있으면 해당 권한에 맞는 메뉴와 기능이 열립니다. 이렇게 하면 일반 조회 사용자는 필요한 화면만 보고, 운영 담당자는 로그 다운로드와 대시보드 기능을 사용할 수 있으며, 개발 또는 설정 담당자는 적용 계획과 설정성 기능까지 접근할 수 있습니다.
+
+두 번째 단계는 입력 조건 검증입니다. 로그 다운로드 요청이라면 LINEID, EQPID, 날짜, 로그 유형, TBL 로그 병합 여부, 메일주소 같은 필드를 확인합니다. 날짜는 현재 정책상 오늘부터 한 달 전까지만 선택 가능하게 제한할 수 있고, LINEID와 EQPID는 검색 가능한 드롭다운으로 제공하면 사용자가 잘못된 값을 입력할 가능성을 줄일 수 있습니다.
+
+세 번째 단계는 서버 요청 구성입니다. 프론트엔드는 사용자가 선택한 조건을 JSON 형태로 FastAPI 서버에 전달하고, 서버는 해당 조건을 기반으로 로그 파일 목록이나 다운로드 작업을 생성합니다. 이때 응답은 단순 완료 메시지뿐 아니라 요청 ID, 예상 처리 시간, 파일 크기, 전송 대상 메일주소, 실패 시 재시도 방법 같은 운영 정보를 포함하면 좋습니다.
+
+네 번째 단계는 결과 표시입니다. 대시보드 테이블은 나중에 API 응답 필드명에 맞춰 매핑하면 됩니다. 지금처럼 컬럼 정의와 데이터 배열을 분리해두면, 서버에서 내려주는 필드명이 확정되었을 때 tableColumns와 필터 key만 맞춰도 화면 구조를 크게 바꾸지 않고 연결할 수 있습니다.
+
+마지막 단계는 감사와 이력 관리입니다. 운영에서는 누가 어떤 권한으로 어떤 로그를 요청했는지, 어떤 조건으로 다운로드했는지, 요청이 성공했는지 실패했는지를 남기는 것이 중요합니다. 특히 내부 로그나 민감 데이터가 포함될 수 있는 기능은 권한과 감사 이력을 함께 설계하는 것이 안전합니다.
+
+이 응답은 일부러 길게 작성되어 있습니다. 화면에서 글자가 한 글자씩 추가되는지, 스크롤이 하단으로 잘 따라가는지, 스트리밍 중 입력창과 전송 버튼이 비활성화되는지 확인하기 위한 테스트 문장입니다. 필요하면 더 긴 응답, 표가 포함된 긴 응답, 코드블록이 포함된 긴 응답도 별도로 추가할 수 있습니다.`
+
+  const normalizedText = userText.toLowerCase()
+
+  if (userText.includes('표') || normalizedText.includes('table')) {
     return tableReply
   }
 
-  if (userText.includes('코드') || userText.includes('파이썬') || userText.toLowerCase().includes('code')) {
+  if (userText.includes('코드') || normalizedText.includes('code')) {
     return codeReply
   }
 
-  const replies = [textReply, tableReply, codeReply]
+  if (
+    userText.includes('스트리밍')
+    || userText.includes('긴 응답')
+    || userText.includes('긴응답')
+    || userText.includes('길게')
+    || userText.includes('테스트')
+    || normalizedText.includes('long')
+    || normalizedText.includes('stream')
+  ) {
+    return longStreamingReply
+  }
+
+  const replies = [textReply, tableReply, codeReply, longStreamingReply]
   const reply = replies[demoReplyIndex % replies.length]
   demoReplyIndex += 1
 
   return reply
 }
-
 function escapeHtml(value) {
   return String(value)
     .replace(/&/g, '&amp;')
@@ -498,6 +530,40 @@ function downloadCsv(csvContent) {
   50% { opacity: 0; }
 }
 
+.bot-avatar-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.bot-avatar-wrap--loading::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  background:
+    conic-gradient(from 0deg, rgba(14, 165, 233, 0), rgba(14, 165, 233, 0.95), rgba(192, 38, 211, 0.9), rgba(14, 165, 233, 0));
+  animation: bot-avatar-spin 0.9s linear infinite;
+  filter: drop-shadow(0 0 10px rgba(14, 165, 233, 0.35));
+}
+
+.bot-avatar-wrap--loading::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 9999px;
+  background: #0A0A0F;
+}
+
+@keyframes bot-avatar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 :deep(.assistant-content) {
   display: flex;
   flex-direction: column;
@@ -635,3 +701,4 @@ function downloadCsv(csvContent) {
   border-bottom: 0;
 }
 </style>
+

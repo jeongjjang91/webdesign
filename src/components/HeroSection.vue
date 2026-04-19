@@ -26,7 +26,7 @@
 
           <!-- Subtext -->
           <p class="text-[17px] leading-relaxed text-[#9CA3B0] mb-10 max-w-[480px] reveal reveal-delay-2">
-            문서 요약부터 코드 리뷰, 회의록 작성까지 — 팀 전체가 쓰는 보안 AI 챗봇을 사내에 직접 구축하세요. 외부 데이터 유출 없이 안전하게.
+            설비 TC 현황, 로그 다운로드, CEID 매핑, 개발 계획을 한 화면에서 빠르게 확인하는 사내 AI 어시스턴트입니다.
           </p>
 
           <!-- Stats -->
@@ -48,10 +48,9 @@
           <div class="relative glass-card rounded-2xl p-1 inner-glow glow-accent animate-float">
           <!-- Chat header -->
           <div class="flex items-center gap-3 px-4 py-3 border-b border-white/6">
-            <TcAiBotIcon size="lg" label="TC AI Bot" class="flex-shrink-0" />
             <div>
-              <div class="text-[13px] font-semibold text-white">TC AI Bot</div>
-              <div class="text-[11px] text-emerald-400 flex items-center gap-1">
+              <div class="text-[16px] font-semibold text-white">TC AI Bot</div>
+              <div class="text-[13px] text-emerald-400 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
                 온라인
               </div>
@@ -68,7 +67,7 @@
             <!-- User message -->
             <div class="flex justify-end">
               <div class="bg-[#123B52] border border-sky-400/10 rounded-2xl rounded-tr-sm px-4 py-2.5 max-w-[75%]">
-                <p class="text-[13px] text-white/90 leading-relaxed">지난주 팀 회의록 요약해줘. 핵심 결정사항만</p>
+                <p class="text-[13px] text-white/90 leading-relaxed">지난주 설비 TC 이슈를 요약해줘. 핵심 결정사항만.</p>
               </div>
             </div>
 
@@ -76,11 +75,11 @@
             <div class="flex gap-2.5">
               <TcAiBotIcon size="sm" label="TC AI Bot" class="flex-shrink-0 mt-0.5" />
               <div class="glass-card rounded-2xl rounded-tl-sm px-4 py-3 max-w-[80%]">
-                <p class="text-[13px] text-white/80 leading-relaxed mb-2">📋 <strong class="text-white">핵심 결정사항 3가지</strong></p>
+                <p class="text-[13px] text-white/80 leading-relaxed mb-2">확인했습니다. <strong class="text-white">핵심 결정사항 3가지</strong></p>
                 <ul class="text-[12px] text-[#9CA3B0] space-y-1.5">
-                  <li class="flex gap-2"><span class="text-accent">01</span> Q2 마케팅 예산 15% 증액 승인</li>
-                  <li class="flex gap-2"><span class="text-accent">02</span> 신규 CRM 도입 TF팀 구성 (6명)</li>
-                  <li class="flex gap-2"><span class="text-accent">03</span> 재택근무 가이드라인 5월 중 확정</li>
+                  <li class="flex gap-2"><span class="text-accent">01</span> LINE-12 설비 로그 보존 정책 확정</li>
+                  <li class="flex gap-2"><span class="text-accent">02</span> CEID 매핑 검증 담당자 지정</li>
+                  <li class="flex gap-2"><span class="text-accent">03</span> 서버 API 연동 일정 재조정</li>
                 </ul>
               </div>
             </div>
@@ -88,19 +87,14 @@
             <!-- User follow-up -->
             <div class="flex justify-end">
               <div class="bg-[#123B52] border border-sky-400/10 rounded-2xl rounded-tr-sm px-4 py-2.5 max-w-[75%]">
-                <p class="text-[13px] text-white/90 leading-relaxed">TF팀 구성원 명단도 알 수 있어?</p>
+                <p class="text-[13px] text-white/90 leading-relaxed">담당자별 후속 작업도 정리해줘.</p>
               </div>
             </div>
 
             <!-- Typing indicator -->
             <div class="flex gap-2.5 items-end">
-              <TcAiBotIcon size="sm" label="TC AI Bot" class="flex-shrink-0" />
-              <div class="glass-card rounded-2xl rounded-tl-sm px-4 py-3">
-                <div class="flex gap-1 items-center h-4">
-                  <div class="w-1.5 h-1.5 rounded-full bg-accent/60 animate-bounce" style="animation-delay:0ms"></div>
-                  <div class="w-1.5 h-1.5 rounded-full bg-accent/60 animate-bounce" style="animation-delay:150ms"></div>
-                  <div class="w-1.5 h-1.5 rounded-full bg-accent/60 animate-bounce" style="animation-delay:300ms"></div>
-                </div>
+              <div class="hero-bot-avatar hero-bot-avatar--loading flex-shrink-0">
+                <TcAiBotIcon size="sm" label="TC AI Bot" class="relative z-10" />
               </div>
             </div>
           </div>
@@ -132,7 +126,7 @@
             <div class="flex items-center gap-2">
               <span class="text-lg">🔒</span>
               <div>
-                <div class="text-[11px] font-semibold text-white">완전 격리</div>
+                <div class="text-[11px] font-semibold text-white">안전 격리</div>
                 <div class="text-[10px] text-muted">사내망 전용</div>
               </div>
             </div>
@@ -184,7 +178,7 @@
                 </span>
               </span>
               <span class="absolute right-3 top-3 text-[13px] text-[#6B7280] transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white">
-                ↗
+                >
               </span>
             </button>
           </div>
@@ -194,7 +188,7 @@
               v-model="homeChatText"
               rows="3"
               class="min-h-[132px] w-full resize-none rounded-lg border border-white/[0.08] bg-[#0D0D14] px-4 py-3 pb-16 text-sm leading-relaxed text-white placeholder-[#7D8594] outline-none transition-colors focus:border-accent/50"
-              placeholder="궁금한 내용을 입력하거나 아래 예시를 선택하세요"
+              placeholder="궁금한 내용을 입력하거나 아래 예시를 선택하세요."
               @keydown.enter.exact.prevent="openChat"
             />
             <button
@@ -258,7 +252,7 @@ onUnmounted(() => {
 
 const promptChips = [
   {
-    emoji: '📝',
+    emoji: 'M',
     label: '회의록 요약',
     description: '긴 회의를 핵심만 짧게 정리해요',
     prompt: '회의록을 핵심 결정사항 중심으로 요약해줘',
@@ -266,23 +260,23 @@ const promptChips = [
     iconBg: 'bg-orange-400/10',
   },
   {
-    emoji: '📌',
+    emoji: 'P',
     label: '업무 우선순위',
-    description: '할 일을 중요도 순서로 정렬해요',
+    description: '할 일을 중요한 순서로 정리해요',
     prompt: '이번 주 업무 우선순위를 정리해줘',
     color: 'text-rose-300',
     iconBg: 'bg-rose-400/10',
   },
   {
-    emoji: '💬',
-    label: '고객 답변 초안',
-    description: '문의에 맞는 응대 문구를 만들어요',
+    emoji: 'R',
+    label: '응답 초안',
+    description: '문의에 맞는 답변 문구를 만들어요',
     prompt: '고객 문의 답변 초안을 작성해줘',
     color: 'text-sky-300',
     iconBg: 'bg-sky-400/10',
   },
   {
-    emoji: '✨',
+    emoji: 'W',
     label: '문장 다듬기',
     description: '딱딱한 문장을 자연스럽게 바꿔요',
     prompt: '보고서 문장을 더 자연스럽게 다듬어줘',
@@ -290,7 +284,7 @@ const promptChips = [
     iconBg: 'bg-violet-400/10',
   },
   {
-    emoji: '⚠️',
+    emoji: 'L',
     label: '리스크 정리',
     description: '위험 요소와 대응책을 묶어줘요',
     prompt: '프로젝트 리스크를 항목별로 정리해줘',
@@ -298,9 +292,9 @@ const promptChips = [
     iconBg: 'bg-amber-400/10',
   },
   {
-    emoji: '👋',
+    emoji: 'D',
     label: '온보딩 문서',
-    description: '신규 입사자 안내를 빠르게 만들어요',
+    description: '신규 인원 안내를 빠르게 만들어요',
     prompt: '신규 입사자 안내 문서를 만들어줘',
     color: 'text-emerald-300',
     iconBg: 'bg-emerald-400/10',
@@ -308,8 +302,49 @@ const promptChips = [
 ]
 
 const stats = [
-  { value: '2,400+', label: '활성 사용자' },
+  { value: '2,400+', label: '월간 요청' },
   { value: '94%', label: '업무 시간 절감' },
   { value: '30+', label: '연동 시스템' },
 ]
 </script>
+
+<style scoped>
+.hero-bot-avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.hero-bot-avatar--lg {
+  width: 4rem;
+  height: 4rem;
+}
+
+.hero-bot-avatar--loading::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  background:
+    conic-gradient(from 0deg, rgba(14, 165, 233, 0), rgba(14, 165, 233, 0.95), rgba(192, 38, 211, 0.9), rgba(14, 165, 233, 0));
+  animation: hero-bot-avatar-spin 0.9s linear infinite;
+  filter: drop-shadow(0 0 10px rgba(14, 165, 233, 0.35));
+}
+
+.hero-bot-avatar--loading::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 9999px;
+  background: #0D0D14;
+}
+
+@keyframes hero-bot-avatar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>
