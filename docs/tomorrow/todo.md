@@ -397,6 +397,9 @@ letter-spacing: 0
 
 ## 13. Implementation Checklist
 
+- [x] TC Assistant 브랜드/봇/파비콘 아이콘을 새 육각형 궤도 아이콘으로 통일
+- [x] 미사용 아이콘 파일 정리
+- [x] 아이콘 구조적 의미와 쌍성 시스템 메타포를 `design.md`에 문서화
 - [ ] 회사 프로젝트의 대시보드 컴포넌트 위치 확인
 - [ ] 사이드바 또는 탭 메뉴 순서 변경
 - [ ] 대시보드별 default table mapping 추가
