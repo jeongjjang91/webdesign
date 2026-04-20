@@ -519,8 +519,8 @@ const navItems = [
 const dashboardSubItems = [
   { id: 'requests', label: '설비 TC 현황' },
   { id: 'automation', label: '설비 TC 파라미터' },
-  { id: 'teams', label: 'LINE별 보기' },
   { id: 'priority', label: 'CEID 매핑' },
+  { id: 'teams', label: 'LINE별 보기' },
   { id: 'settings', label: '표시 설정' },
 ]
 

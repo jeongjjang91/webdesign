@@ -145,7 +145,7 @@
 
                 <div class="flex items-center gap-2 text-[12px] text-[#8B94A5]">
                   <Icon icon="lucide:filter" class="h-4 w-4" />
-                  <span>{{ filteredRequests.length }}개 항목 표시 중</span>
+                  <span>{{ filteredRequests.length }}개 항목 중 {{ pageStart }}-{{ pageEnd }} 표시</span>
                 </div>
               </div>
             </div>
@@ -163,13 +163,19 @@
               <button key="clear-all" type="button" class="px-2 py-1 text-[12px] font-semibold text-[#8B94A5] transition-colors hover:text-white" @click="clearFilters">전체 해제</button>
             </TransitionGroup>
 
-            <button type="button" class="app-cta app-cta--sm ml-auto" @click="downloadCsv">
-              <span class="app-cta__glow"></span>
-              <span class="app-cta__content">
-                <Icon icon="lucide:download" class="h-4 w-4" />
-                CSV 다운로드
-              </span>
-            </button>
+            <div class="ml-auto flex flex-wrap items-center justify-end gap-2">
+              <span v-if="hasPendingFilters" class="text-[12px] font-semibold text-amber-300">변경된 필터가 있습니다</span>
+              <button type="button" class="rounded-md border border-accent/30 bg-accent/10 px-3 py-2 text-[12px] font-semibold text-accent transition-colors hover:border-accent/60 hover:bg-accent/15" @click="applyFilters">
+                조회
+              </button>
+              <button type="button" class="app-cta app-cta--sm" @click="downloadCsv">
+                <span class="app-cta__glow"></span>
+                <span class="app-cta__content">
+                  <Icon icon="lucide:download" class="h-4 w-4" />
+                  CSV 다운로드
+                </span>
+              </button>
+            </div>
           </div>
 
           <div class="w-full overflow-hidden rounded-lg border border-white/[0.08] bg-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
@@ -179,7 +185,7 @@
               </div>
 
               <div v-if="filteredRequests.length" class="min-w-[1640px] divide-y divide-white/[0.06]">
-                <article v-for="request in filteredRequests" :key="request.id" class="grid gap-4 px-5 py-4 transition-colors hover:bg-white/[0.035]" :style="activeTableGridStyle">
+                <article v-for="request in paginatedRequests" :key="request.id" class="grid gap-4 px-5 py-4 transition-colors hover:bg-white/[0.035]" :style="activeTableGridStyle">
                   <div v-for="column in activeTableColumns" :key="column.key" class="flex min-w-0 items-center text-sm" :class="[column.align === 'right' ? 'justify-end text-right' : '', column.sticky ? 'sticky left-0 z-10 -ml-5 pl-5 pr-4' : '']">
                     <template v-if="column.sticky">
                       <div class="flex min-h-[48px] min-w-0 items-center">
@@ -203,6 +209,32 @@
                 <h2 class="text-lg font-semibold text-white">조건에 맞는 항목이 없습니다</h2>
                 <p class="mt-2 text-sm text-[#8B94A5]">필터를 줄이거나 전체 해제를 눌러 다시 확인해보세요.</p>
               </div>
+            </div>
+          </div>
+
+          <div v-if="filteredRequests.length" class="mt-4 flex flex-col gap-3 rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-wrap items-center gap-3 text-[12px] text-[#8B94A5]">
+              <span>총 <strong class="font-semibold text-white">{{ filteredRequests.length }}</strong>건</span>
+              <span>{{ currentPage }} / {{ totalPages }} 페이지</span>
+              <label class="flex items-center gap-2">
+                <span>페이지당</span>
+                <select v-model.number="pageSize" class="rounded-md border border-white/[0.08] bg-[#0D0D14] px-2.5 py-1.5 text-[12px] font-semibold text-white outline-none transition-colors focus:border-accent/50">
+                  <option v-for="size in pageSizeOptions" :key="size" :value="size">{{ size }}</option>
+                </select>
+                <span>건</span>
+              </label>
+            </div>
+
+            <div class="flex items-center justify-end gap-2">
+              <button type="button" class="rounded-md border border-white/[0.08] bg-[#0D0D14] px-3 py-2 text-[12px] font-semibold text-[#C4C9D4] transition-colors hover:border-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-40" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
+                이전
+              </button>
+              <button v-for="page in visiblePages" :key="page" type="button" class="h-8 min-w-8 rounded-md border px-2 text-[12px] font-semibold transition-colors" :class="page === currentPage ? 'border-accent bg-accent text-white' : 'border-white/[0.08] bg-[#0D0D14] text-[#C4C9D4] hover:border-accent/30 hover:text-white'" @click="goToPage(page)">
+                {{ page }}
+              </button>
+              <button type="button" class="rounded-md border border-white/[0.08] bg-[#0D0D14] px-3 py-2 text-[12px] font-semibold text-[#C4C9D4] transition-colors hover:border-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-40" :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
+                다음
+              </button>
             </div>
           </div>
 
@@ -234,6 +266,9 @@ const props = defineProps({
 
 const openFilterId = ref(null)
 const activeMenuId = ref(props.dashboardMenu)
+const currentPage = ref(1)
+const pageSize = ref(10)
+const pageSizeOptions = [5, 10, 20, 50]
 
 watch(
   () => props.dashboardMenu,
@@ -251,6 +286,16 @@ const selectedFilters = reactive({
   serverModel: [],
   dcopModel: [],
   ceId: [],
+  rpt: [],
+})
+
+const appliedFilters = reactive({
+  lineId: [],
+  eqpId: [],
+  serverModel: [],
+  dcopModel: [],
+  ceId: [],
+  rpt: [],
 })
 
 const filterSearch = reactive({
@@ -259,6 +304,7 @@ const filterSearch = reactive({
   serverModel: '',
   dcopModel: '',
   ceId: '',
+  rpt: '',
 })
 
 const filterControls = [
@@ -294,18 +340,18 @@ const dashboardMenus = [
     description: '설비별 TC 파라미터 후보와 반복 점검 기준을 확인합니다.',
   },
   {
+    id: 'priority',
+    icon: 'lucide:flag',
+    title: 'CEID 매핑',
+    caption: 'RPTID / VID LIST',
+    description: 'EQP_ID, CEID, RPT 기준으로 RPT_ORDER와 VID_LIST 매핑을 확인합니다.',
+  },
+  {
     id: 'teams',
     icon: 'lucide:users',
     title: 'LINE별 보기',
     caption: '설비 분포',
     description: 'LINE별 설비 분포와 TC 운영 상태를 비교합니다.',
-  },
-  {
-    id: 'priority',
-    icon: 'lucide:flag',
-    title: 'CEID 매핑',
-    caption: 'RPTID / VID LIST',
-    description: 'LINEID, EQPID, CEID 기준으로 RPTID와 VID LIST 매핑을 확인합니다.',
   },
   {
     id: 'settings',
@@ -349,21 +395,21 @@ const tableGridStyle = {
 }
 
 const ceFilterControls = [
-  { id: 'lineId', label: 'LINEID', options: ['12', '13', '14', '15'] },
-  { id: 'eqpId', label: 'EQPID', options: ['ABC123', 'DEF456', 'GHI789', 'JKL234'] },
-  { id: 'ceId', label: 'CEID', options: ['3021', '3022', '3023', '3024'] },
+  { id: 'eqpId', label: 'eqp_id', options: ['ABC123', 'DEF456', 'GHI789', 'JKL234'] },
+  { id: 'ceId', label: 'ceid', options: ['1231', '1232', '1233', '1234'] },
+  { id: 'rpt', label: 'rpt', options: ['10', '20', '30'] },
 ]
 
 const ceTableColumns = [
-  { key: 'lineId', label: 'LINEID', sticky: true },
-  { key: 'eqpId', label: 'EQPID' },
-  { key: 'ceId', label: 'CEID' },
-  { key: 'rptId', label: 'RPTID' },
-  { key: 'vidList', label: 'VID LIST' },
+  { key: 'eqpId', label: 'eqp_id', sticky: true },
+  { key: 'ceId', label: 'ceid' },
+  { key: 'rpt', label: 'rpt', align: 'right' },
+  { key: 'rptOrder', label: 'rpt_order', align: 'right' },
+  { key: 'vidList', label: 'vid_list' },
 ]
 
 const ceTableGridStyle = {
-  gridTemplateColumns: 'minmax(110px,0.5fr) minmax(130px,0.65fr) minmax(120px,0.6fr) minmax(120px,0.6fr) minmax(420px,2fr)',
+  gridTemplateColumns: 'minmax(130px,0.65fr) minmax(120px,0.6fr) minmax(100px,0.45fr) minmax(120px,0.55fr) minmax(520px,2fr)',
 }
 
 const baseRequests = [
@@ -411,12 +457,19 @@ const generatedRequests = Array.from({ length: 28 }, (_, index) => {
 const requests = [...baseRequests, ...generatedRequests]
 
 const ceRequests = [
-  { id: 'ce-1', lineId: '12', eqpId: 'ABC123', ceId: '3021', rptId: '100', vidList: '1,2,3,100,1000' },
-  { id: 'ce-2', lineId: '12', eqpId: 'DEF456', ceId: '3022', rptId: '200', vidList: '4,5,6,101,1001' },
-  { id: 'ce-3', lineId: '13', eqpId: 'GHI789', ceId: '3021', rptId: '100', vidList: '7,8,9,110,1010' },
-  { id: 'ce-4', lineId: '13', eqpId: 'JKL234', ceId: '3023', rptId: '200', vidList: '10,11,12,120,1020' },
-  { id: 'ce-5', lineId: '14', eqpId: 'ABC123', ceId: '3024', rptId: '100', vidList: '13,14,15,130,1030' },
-  { id: 'ce-6', lineId: '15', eqpId: 'DEF456', ceId: '3022', rptId: '200', vidList: '16,17,18,140,1040' },
+  { id: 'ce-0', eqpId: 'ABC123', ceId: '1231', rpt: 10, rptOrder: 0, vidList: '101,205,309,412,518' },
+  { id: 'ce-1', eqpId: 'ABC123', ceId: '1231', rpt: 10, rptOrder: 1, vidList: '102,206,310,413,519' },
+  { id: 'ce-2', eqpId: 'ABC123', ceId: '1231', rpt: 10, rptOrder: 2, vidList: '103,207,311,414,520' },
+  { id: 'ce-3', eqpId: 'ABC123', ceId: '1231', rpt: 10, rptOrder: 3, vidList: '104,208,312,415,521' },
+  { id: 'ce-4', eqpId: 'ABC123', ceId: '1231', rpt: 10, rptOrder: 4, vidList: '105,209,313,416,522' },
+  { id: 'ce-5', eqpId: 'ABC123', ceId: '1231', rpt: 10, rptOrder: 5, vidList: '106,210,314,417,523' },
+  { id: 'ce-6', eqpId: 'ABC123', ceId: '1231', rpt: 10, rptOrder: 6, vidList: '107,211,315,418,524' },
+  { id: 'ce-7', eqpId: 'ABC123', ceId: '1231', rpt: 10, rptOrder: 7, vidList: '108,212,316,419,525' },
+  { id: 'ce-8', eqpId: 'ABC123', ceId: '1231', rpt: 10, rptOrder: 8, vidList: '109,213,317,420,526' },
+  { id: 'ce-9', eqpId: 'ABC123', ceId: '1231', rpt: 10, rptOrder: 9, vidList: '110,214,318,421,527' },
+  { id: 'ce-10', eqpId: 'ABC123', ceId: '1231', rpt: 10, rptOrder: 10, vidList: '111,215,319,422,528' },
+  { id: 'ce-11', eqpId: 'DEF456', ceId: '1232', rpt: 20, rptOrder: 0, vidList: '201,305,409,512,618' },
+  { id: 'ce-12', eqpId: 'GHI789', ceId: '1233', rpt: 30, rptOrder: 1, vidList: '301,405,509,612,718' },
 ]
 
 const activeFilterControls = computed(() => (activeMenuId.value === 'priority' ? ceFilterControls : filterControls))
@@ -428,13 +481,52 @@ const activeFilters = computed(() => activeFilterControls.value.flatMap((filter)
   return selectedFilters[filter.id].map((value) => ({ id: filter.id, label: filter.label, value }))
 }))
 
+const hasPendingFilters = computed(() => {
+  return Object.keys(selectedFilters).some((key) => {
+    return selectedFilters[key].join('|') !== appliedFilters[key].join('|')
+  })
+})
+
 const filteredRequests = computed(() => {
   return activeRequests.value.filter((request) => {
     return activeFilterControls.value.every((filter) => {
-      const selectedValues = selectedFilters[filter.id]
-      return !selectedValues.length || selectedValues.includes(request[filter.id])
+      const selectedValues = appliedFilters[filter.id]
+      return !selectedValues.length || selectedValues.includes(String(request[filter.id]))
     })
   })
+})
+
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredRequests.value.length / pageSize.value)))
+
+const paginatedRequests = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return filteredRequests.value.slice(start, start + pageSize.value)
+})
+
+const pageStart = computed(() => {
+  if (!filteredRequests.value.length) return 0
+  return (currentPage.value - 1) * pageSize.value + 1
+})
+
+const pageEnd = computed(() => Math.min(currentPage.value * pageSize.value, filteredRequests.value.length))
+
+const visiblePages = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
+  const start = Math.max(1, Math.min(current - 2, total - 4))
+  const end = Math.min(total, start + 4)
+
+  return Array.from({ length: end - start + 1 }, (_, index) => start + index)
+})
+
+watch([filteredRequests, pageSize], () => {
+  currentPage.value = 1
+})
+
+watch(totalPages, (pages) => {
+  if (currentPage.value > pages) {
+    currentPage.value = pages
+  }
 })
 
 const metrics = computed(() => [
@@ -442,7 +534,7 @@ const metrics = computed(() => [
     ? { label: '전체 CEID', value: ceRequests.length }
     : { label: '전체 설비', value: requests.length },
   activeMenuId.value === 'priority'
-    ? { label: 'RPTID 100', value: ceRequests.filter((request) => request.rptId === '100').length }
+    ? { label: 'RPT 10', value: ceRequests.filter((request) => request.rpt === 10).length }
     : { label: '정상', value: requests.filter((request) => request.status === '정상').length },
   activeMenuId.value === 'priority'
     ? { label: 'LINE 수', value: new Set(ceRequests.map((request) => request.lineId)).size }
@@ -517,8 +609,22 @@ function clearFilterGroup(filterId) {
 function clearFilters() {
   Object.keys(selectedFilters).forEach((key) => {
     selectedFilters[key].splice(0)
+    appliedFilters[key].splice(0)
     filterSearch[key] = ''
   })
+  currentPage.value = 1
+}
+
+function applyFilters() {
+  Object.keys(selectedFilters).forEach((key) => {
+    appliedFilters[key].splice(0, appliedFilters[key].length, ...selectedFilters[key])
+  })
+  currentPage.value = 1
+  openFilterId.value = null
+}
+
+function goToPage(page) {
+  currentPage.value = Math.min(Math.max(page, 1), totalPages.value)
 }
 
 function escapeCsvValue(value) {
