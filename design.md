@@ -832,16 +832,45 @@ const dashboardTables = {
 
 ### 14.5 TC Assistant 아이콘
 
-- 파일: `src/components/TcAiBotIcon.vue`
-- 현재 아이콘은 기존 TC Bot 스타일 SVG입니다.
-- 잠시 네트워크 노드형 아이콘으로 변경했다가 원복했습니다.
-- 향후 Gemini 등으로 아이콘 파일을 새로 만들 경우:
-  - SVG 우선
-  - 투명 배경 PNG 보조
-  - 24px, 32px에서도 식별 가능해야 함
-  - 텍스트 삽입 금지
-  - 흰 배경 포함 금지
-- SVG로 받을 경우 `TcAiBotIcon.vue` 안에 직접 반영하면 확대/축소 시 깨지지 않습니다.
+- 파일:
+  - `public/tc-assistant-brand-icon.png`
+  - `src/components/TcAiBotIcon.vue`
+  - `src/components/GatewayFlowIcon.vue`
+- 현재 브랜드/봇/파비콘 아이콘은 모두 `public/tc-assistant-brand-icon.png`를 사용합니다.
+- 적용 위치:
+  - 브라우저 탭/주소창 파비콘: `index.html`
+  - 사이드바 상단 `TC Assistant` 브랜드 아이콘: `src/components/TheSidebar.vue`
+  - 채팅 메시지 assistant 아바타: `src/components/TcAiBotIcon.vue`
+  - 히어로/적용 계획의 봇 아이콘: `src/components/TcAiBotIcon.vue`
+  - 푸터/활용 사례의 어시스턴트 아이콘: `src/components/GatewayFlowIcon.vue`
+- 기존 미사용 아이콘(`tc-assistant-icon.svg`, 임시 `app-icon.ico`)은 제거했습니다.
+
+#### 14.5.1 구조적 의미
+
+- 중심 육각형 (TC 시스템)
+  - 가장 크고 강한 코어입니다.
+  - 모든 연결의 중심점이자 중력의 중심을 의미합니다.
+  - 육각형은 반도체/기술 산업의 상징으로, 칩과 회로 기판의 기하학적 패턴을 연상시킵니다.
+- 좌우 작은 육각형 (MES & 설비)
+  - 왼쪽은 MES 시스템을 의미합니다.
+  - 오른쪽은 반도체 설비를 의미합니다.
+  - 같은 크기로 대칭 배치되어 두 시스템의 동등한 중요성을 나타냅니다.
+- 3개의 궤도선
+  - 단순한 "연결"이 아니라 "지속적인 순환과 흐름"을 의미합니다.
+  - 여러 궤도는 다양한 데이터 경로와 복수의 통신 채널을 상징합니다.
+  - 서로 교차하며 감싸는 형태는 복잡하지만 안정적으로 통합된 시스템을 나타냅니다.
+
+#### 14.5.2 쌍성 시스템 메타포
+
+- 실제 쌍성 시스템처럼 두 별(MES, 설비)이 제각각 움직이는 것이 아니라 공통 질량 중심(TC) 주위를 함께 공전합니다.
+- TC가 없으면 두 시스템은 따로 동작하지만, TC가 있기에 하나의 통합된 시스템으로 작동합니다.
+
+#### 14.5.3 시각적 강점
+
+- 안정감: 완벽한 좌우 대칭
+- 복잡성: 3개 궤도가 주는 정교함. 단순한 중개자가 아닌 복잡한 통합 시스템을 표현합니다.
+- 역동성: 정적이지 않고 계속 흐르는 느낌
+- 전문성: 과학적이고 기술적인 느낌
 
 ### 14.6 대시보드
 

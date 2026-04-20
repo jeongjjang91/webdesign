@@ -12,7 +12,11 @@
         title="홈으로 이동"
         @click="emit('navigate', 'home')"
       >
-        <GatewayFlowIcon size="sm" label="TC Assistant" class="flex-shrink-0" />
+        <img
+          src="/tc-assistant-brand-icon.png"
+          alt="TC Assistant"
+          class="h-8 w-8 flex-shrink-0 object-contain"
+        />
         <template v-if="!collapsed">
           <span class="font-semibold tracking-tight text-white">TC Assistant</span>
           <span class="rounded-full border border-white/[0.08] bg-white/5 px-2 py-0.5 text-xs text-muted">Beta</span>
@@ -410,7 +414,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Icon } from '@iconify/vue'
-import GatewayFlowIcon from './GatewayFlowIcon.vue'
 
 const props = defineProps({
   currentPage: {
