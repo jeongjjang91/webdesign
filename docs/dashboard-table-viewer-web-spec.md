@@ -769,6 +769,9 @@ Add pagination state:
 const currentPage = ref(1)
 const pageSize = ref(10)
 const pageSizeOptions = [5, 10, 20, 50]
+const sortBy = ref('')
+const sortOrder = ref('asc')
+const copiedCellKey = ref('')
 ```
 
 Add separate draft and applied filter state:
@@ -825,6 +828,39 @@ const pageStart = computed(() => {
 const pageEnd = computed(() => Math.min(currentPage.value * pageSize.value, filteredRows.value.length))
 ```
 
+Add sorting before pagination:
+
+```ts
+const sortedRows = computed(() => {
+  if (!sortBy.value) return filteredRows.value
+
+  return [...filteredRows.value].sort((left, right) => {
+    const leftValue = left[sortBy.value]
+    const rightValue = right[sortBy.value]
+    const direction = sortOrder.value === 'asc' ? 1 : -1
+
+    if (leftValue == null && rightValue == null) return 0
+    if (leftValue == null) return -1 * direction
+    if (rightValue == null) return 1 * direction
+
+    if (typeof leftValue === 'number' && typeof rightValue === 'number') {
+      return (leftValue - rightValue) * direction
+    }
+
+    return String(leftValue).localeCompare(String(rightValue), 'ko', { numeric: true }) * direction
+  })
+})
+```
+
+Then paginate `sortedRows`, not `filteredRows`:
+
+```ts
+const paginatedRows = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return sortedRows.value.slice(start, start + pageSize.value)
+})
+```
+
 Add visible page button calculation:
 
 ```ts
@@ -860,6 +896,30 @@ function goToPage(page) {
 }
 ```
 
+Add sort toggle function:
+
+```ts
+function toggleSort(columnKey) {
+  if (sortBy.value !== columnKey) {
+    sortBy.value = columnKey
+    sortOrder.value = 'asc'
+  } else if (sortOrder.value === 'asc') {
+    sortOrder.value = 'desc'
+  } else {
+    sortBy.value = ''
+    sortOrder.value = 'asc'
+  }
+
+  currentPage.value = 1
+}
+```
+
+Sort click cycle:
+
+```text
+no sort -> ascending -> descending -> no sort
+```
+
 Add filter apply function:
 
 ```ts
@@ -882,6 +942,171 @@ async function applyFilters() {
 ```
 
 Adapt naming to the company codebase. For example, if the existing computed result is named `filteredRequests`, use `paginatedRequests`. If it is named `filteredRows`, use `paginatedRows`.
+
+### URL Query Sync Implementation
+
+The prototype syncs app and dashboard table state into the URL query.
+
+Current prototype query params:
+
+```text
+page=dashboard
+menu=priority
+table_page=2
+page_size=10
+sort_by=rptOrder
+sort_order=asc
+filter_eqpId=ABC123
+filter_ceId=1231
+filter_rpt=10
+```
+
+Query param responsibilities:
+
+| Param | Meaning |
+| --- | --- |
+| `page` | App-level page, for example `dashboard` |
+| `menu` | Dashboard section id, for example `priority` |
+| `table_page` | Current table page |
+| `page_size` | Rows per page |
+| `sort_by` | Current sort column key |
+| `sort_order` | `asc` or `desc` |
+| `filter_*` | Applied filter values |
+
+Important rules:
+
+- URL query must store applied filters, not draft filters.
+- Changing draft filters must not update `filter_*` params.
+- Clicking `조회` copies draft filters to applied filters and then updates the URL.
+- Page movement updates `table_page`.
+- Page size changes update `page_size` and reset `table_page` to `1`.
+- Sort changes update `sort_by`, `sort_order`, and reset `table_page` to `1`.
+- Use `table_page` instead of `page` for table pagination to avoid conflict with app-level routing.
+
+Prototype restore logic:
+
+```ts
+function restoreDashboardFromUrl() {
+  const params = new URLSearchParams(window.location.search)
+
+  restore menu from params.get('menu')
+  restore table page from params.get('table_page')
+  restore page size from params.get('page_size')
+  restore sort from params.get('sort_by') and params.get('sort_order')
+  restore applied filters from params matching filter_*
+  copy restored applied filters into draft filters
+}
+```
+
+Prototype sync logic:
+
+```ts
+function syncDashboardUrl() {
+  const params = new URLSearchParams(window.location.search)
+
+  params.set('page', 'dashboard')
+  params.set('menu', activeMenuId.value)
+  params.set('table_page', String(currentPage.value))
+  params.set('page_size', String(pageSize.value))
+
+  if (sortBy.value) {
+    params.set('sort_by', sortBy.value)
+    params.set('sort_order', sortOrder.value)
+  } else {
+    params.delete('sort_by')
+    params.delete('sort_order')
+  }
+
+  write applied filters as filter_* params
+  window.history.replaceState({}, '', nextUrl)
+}
+```
+
+Production router guidance:
+
+- If the company project uses Vue Router, prefer `router.replace({ query })`.
+- If it does not use Vue Router, `window.history.replaceState` is acceptable.
+- Do not use `router.push` or `history.pushState` for every table state change unless browser back/forward history for table state is explicitly required.
+- Ignore invalid query values and fall back to safe defaults.
+- Do not put sensitive values in URL query.
+
+### Header Sort UI
+
+Each table header should be a button.
+
+Header button behavior:
+
+- Click calls `toggleSort(column.key)`.
+- Current sorted column shows an ascending or descending icon.
+- Unsorted columns may show a neutral sort icon.
+- Sort should be keyboard accessible because the header control is a real button.
+
+Recommended display:
+
+```text
+eqp_id <neutral sort icon>
+rpt_order <up icon>
+```
+
+Production API guidance:
+
+- Prototype sorting is local because data is local/mock.
+- Production sorting must be server-side.
+- Header click should set `sort_by`, `sort_order`, reset page to `1`, update URL, and call the row query API.
+- Backend should reject or ignore sort columns not allowed for the selected table.
+
+### Cell Copy UI
+
+Each table cell should provide a copy action.
+
+Current prototype behavior:
+
+- Copy button appears on cell hover.
+- Clicking the button copies only that cell's text value.
+- Copy success changes the icon to a check mark for a short time.
+- The copied value is plain text.
+- `null` or `undefined` copies as an empty string.
+
+Recommended copy state:
+
+```ts
+const copiedCellKey = ref('')
+```
+
+Recommended copy key:
+
+```ts
+`${row.id}-${column.key}`
+```
+
+Copy function behavior:
+
+```ts
+async function copyCell(value, rowId, columnKey) {
+  const text = String(value ?? '')
+  await navigator.clipboard.writeText(text)
+  copiedCellKey.value = `${rowId}-${columnKey}`
+  clear copiedCellKey after a short timeout
+}
+```
+
+Fallback:
+
+- If `navigator.clipboard.writeText` is not available, use a temporary `textarea` and `document.execCommand('copy')`.
+
+Scope:
+
+- Implement individual cell copy only.
+- Do not implement drag selection, multi-cell range copy, row copy, or current-page copy unless separately requested.
+- Do not copy HTML markup or hidden metadata.
+
+Fields that benefit most:
+
+- `vid_list`
+- `eqp_id`
+- `ceid`
+- `EQPID`
+- `PARAM_NAME`
 
 ### Download Behavior
 
@@ -979,7 +1204,7 @@ If the API does not provide stable row IDs, generate a stable display key from p
 Do not implement these unless separately requested.
 
 - Client-side full dataset caching
-- Client-side sorting
+- Client-side sorting for production API data
 - Partial string search UI
 - Saved filter presets
 - Background export job UI
@@ -1001,6 +1226,50 @@ sort_order=asc
 
 Keep table header rendering simple enough to add sortable headers later.
 
+Current Vue prototype already includes local table sorting.
+
+Prototype behavior:
+
+- Clicking a table header cycles sort state:
+  - no sort -> ascending
+  - ascending -> descending
+  - descending -> no sort
+- Sorting is applied after filtering and before pagination.
+- Changing sort resets the current page to `1`.
+- Sort state is reflected in the URL query.
+
+Prototype flow:
+
+```text
+activeRows
+  -> applied filters
+  -> filteredRows
+  -> sort by sortBy/sortOrder
+  -> sortedRows
+  -> paginate
+  -> paginatedRows
+```
+
+Recommended URL params:
+
+```text
+sort_by=rptOrder
+sort_order=asc
+```
+
+Production API behavior:
+
+- Do not sort only the current page on the frontend.
+- Send `sort_by` and `sort_order` to the backend.
+- Backend should validate that `sort_by` is an allowed column for the selected table.
+- Changing sort should request `page=1`.
+
+Production request example:
+
+```http
+GET /api/v1/tables/TC_EQP_RELINK?page=1&page_size=50&EQP_ID=ABC123&sort_by=rpt_order&sort_order=asc
+```
+
 ### Contains Search
 
 Future API may support:
@@ -1016,6 +1285,78 @@ Current implementation should use exact-match filters only. Do not invent contai
 Future large downloads over `100,000` rows may become async background jobs.
 
 Keep download action isolated in a function so it can later be replaced with job creation and polling.
+
+## 17.1 URL Query Sync
+
+The Vue prototype supports URL query sync for dashboard table state.
+
+Purpose:
+
+- Refresh should preserve the current dashboard table state.
+- Users can share a link to the current dashboard view.
+- The company agent can map the same behavior to the production router.
+
+Recommended query params:
+
+```text
+page=dashboard
+menu=priority
+table_page=2
+page_size=10
+sort_by=rptOrder
+sort_order=asc
+filter_eqpId=ABC123
+filter_ceId=1231
+filter_rpt=10
+```
+
+Rules:
+
+- `page` controls the app-level page.
+- `menu` controls the dashboard tab or section.
+- `table_page` controls table pagination and avoids conflict with app-level `page`.
+- `page_size` controls rows per page.
+- `sort_by` and `sort_order` control sorting.
+- Filter params should represent applied filters, not draft filters.
+- Draft filters should not be written to the URL until the user clicks `조회`.
+
+Prototype behavior:
+
+- On initial load, parse URL query and restore dashboard menu, page, page size, sort state, and applied filters.
+- On dashboard state change, update the URL with `history.replaceState`.
+- Do not add browser history entries for every pagination/filter change in the prototype.
+
+Production behavior:
+
+- If the company project uses Vue Router, use `router.replace` instead of direct `history.replaceState`.
+- Keep query values limited to non-sensitive table filters.
+- Do not put credentials, internal hostnames, tokens, or SQL in the URL.
+- If a query references an invalid table/menu/filter, ignore it and fall back to defaults.
+
+## 17.2 Cell Copy
+
+The Vue prototype supports copying individual cell values.
+
+Behavior:
+
+- Each cell shows a copy action on hover.
+- Clicking copy writes that cell value to the clipboard.
+- The UI briefly changes the icon to a check mark after copying.
+- Values are copied as plain text.
+- `null` or `undefined` should copy as an empty string.
+
+Recommended production behavior:
+
+- Use `navigator.clipboard.writeText` when available.
+- Provide a fallback for older browsers if required by the company environment.
+- Do not copy hidden metadata or HTML.
+- For long fields such as `vid_list`, cell copy is especially useful.
+
+Optional future extension:
+
+- Add row copy.
+- Add selected-cell range copy.
+- Add current visible page copy as TSV.
 
 ## 18. QA Checklist
 

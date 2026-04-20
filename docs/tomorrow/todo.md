@@ -13,6 +13,9 @@
 - 페이지네이션 UI
 - 조회 버튼
 - draft 필터와 applied 필터 분리
+- URL query 상태 복원
+- 컬럼 정렬
+- 셀 값 복사
 
 ## 1. Start From The Spec
 
@@ -209,7 +212,122 @@ GET /api/v1/tables/{table_name}/download?format=csv&{appliedFilters}
 - 사용자가 필터를 바꿨지만 조회를 누르지 않은 상태라면, 기존 조회 조건 기준으로 다운로드된다.
 - 이 상태가 헷갈릴 수 있으므로 `변경된 필터가 있습니다` 문구를 유지한다.
 
-## 9. Implementation Checklist
+## 9. URL Query Sync
+
+현재 대시보드 상태를 URL query에 반영한다.
+
+목적:
+
+- 새로고침 후에도 같은 대시보드 상태를 복원한다.
+- 특정 조회 조건을 링크로 공유할 수 있게 한다.
+- 회사 AI agent가 실제 라우터에 같은 구조를 연결할 수 있게 한다.
+
+권장 query 형태:
+
+```text
+?page=dashboard
+&menu=priority
+&table_page=2
+&page_size=50
+&sort_by=rpt_order
+&sort_order=asc
+&filter_eqp_id=ABC123
+&filter_ceid=1231
+&filter_rpt=10
+```
+
+로컬 Vue 프로토타입에서는 camelCase key를 쓰고 있으므로 아래처럼 동작할 수 있다.
+
+```text
+?page=dashboard
+&menu=priority
+&table_page=2
+&page_size=10
+&sort_by=rptOrder
+&sort_order=asc
+&filter_eqpId=ABC123
+&filter_ceId=1231
+&filter_rpt=10
+```
+
+회사 API 연결 시에는 백엔드 컬럼명과 맞춰 snake_case 또는 실제 API 필드명으로 변환한다.
+
+주의:
+
+- URL에는 applied 필터만 반영한다.
+- 사용자가 선택 중인 draft 필터는 `조회` 전까지 URL에 반영하지 않는다.
+- `page`는 앱 페이지용으로 사용한다.
+- 테이블 페이지 번호는 `table_page`를 사용해 충돌을 피한다.
+- 회사 보안상 URL에 남기면 안 되는 값은 query에 넣지 않는다.
+
+구현 방식:
+
+- Vue Router가 있으면 `router.replace({ query })` 사용
+- Vue Router가 없으면 `window.history.replaceState` 사용
+- 잘못된 query 값은 무시하고 기본값으로 복원
+
+## 10. Column Sorting
+
+테이블 헤더 클릭으로 정렬을 지원한다.
+
+동작:
+
+```text
+첫 클릭: 오름차순
+두 번째 클릭: 내림차순
+세 번째 클릭: 정렬 해제
+```
+
+로컬 프로토타입 처리 순서:
+
+```text
+원본 데이터
+-> appliedFilters 적용
+-> sort_by / sort_order 적용
+-> pagination 적용
+-> 현재 페이지 표시
+```
+
+실제 API 버전 처리:
+
+```text
+헤더 클릭
+-> sort_by, sort_order 변경
+-> page=1
+-> API 호출
+```
+
+요청 예시:
+
+```text
+GET /api/v1/tables/TC_EQP_RELINK?page=1&page_size=50&EQP_ID=ABC123&sort_by=rpt_order&sort_order=asc
+```
+
+주의:
+
+- 실제 API 버전에서는 프론트에서 현재 페이지 데이터만 정렬하면 안 된다.
+- 전체 결과 기준 정렬이 되도록 서버에 정렬 파라미터를 보내야 한다.
+- 백엔드는 `sort_by`가 허용된 컬럼인지 검증해야 한다.
+
+## 11. Cell Copy
+
+셀 영역의 값을 복사할 수 있게 한다.
+
+동작:
+
+- 셀 hover 시 복사 버튼 표시
+- 클릭 시 해당 셀 값만 plain text로 복사
+- 복사 성공 시 짧게 check 표시
+- `vid_list`처럼 긴 문자열도 그대로 복사
+
+주의:
+
+- HTML을 복사하지 않는다.
+- 숨겨진 metadata를 복사하지 않는다.
+- null 값은 빈 문자열로 처리한다.
+- 범위 복사는 이번 범위에 포함하지 않는다.
+
+## 12. Implementation Checklist
 
 - [ ] 회사 프로젝트의 대시보드 컴포넌트 위치 확인
 - [ ] 사이드바 또는 탭 메뉴 순서 변경
@@ -225,11 +343,17 @@ GET /api/v1/tables/{table_name}/download?format=csv&{appliedFilters}
 - [ ] page size 변경 시 page=1로 API 호출
 - [ ] CEID 매핑 컬럼을 `eqp_id`, `ceid`, `rpt`, `rpt_order`, `vid_list`로 맞춤
 - [ ] 다운로드는 applied 필터 기준으로 호출
+- [ ] URL query에서 dashboard state 복원
+- [ ] applied 필터, 페이지, page size, 정렬 상태를 URL에 반영
+- [ ] 컬럼 헤더 클릭 정렬 추가
+- [ ] 실제 API 버전에서는 sort_by/sort_order를 서버로 전달
+- [ ] 셀 값 복사 버튼 추가
+- [ ] 복사 성공 피드백 추가
 - [ ] 빈 결과, 로딩, 에러 상태 확인
 - [ ] 모바일에서 테이블 가로 스크롤 확인
 - [ ] 빌드 실행
 
-## 10. Manual Test Cases
+## 13. Manual Test Cases
 
 ### TC_EQUIPMENT
 
@@ -238,6 +362,7 @@ GET /api/v1/tables/{table_name}/download?format=csv&{appliedFilters}
 - [ ] 조회 버튼 클릭 시 필터가 적용된다.
 - [ ] 다음 페이지 클릭 시 같은 필터로 page만 변경된다.
 - [ ] page size 변경 시 1페이지로 돌아간다.
+- [ ] 새로고침 후 URL query 기준으로 상태가 복원된다.
 
 ### TC_EQP_PARAM
 
@@ -245,6 +370,7 @@ GET /api/v1/tables/{table_name}/download?format=csv&{appliedFilters}
 - [ ] 필터 없이 조회가 막힌다.
 - [ ] 필터 입력 후 조회가 가능하다.
 - [ ] 페이지 이동 시 applied 필터가 유지된다.
+- [ ] 정렬 시 page=1로 돌아간다.
 
 ### TC_EQP_RELINK / CEID Mapping
 
@@ -253,8 +379,19 @@ GET /api/v1/tables/{table_name}/download?format=csv&{appliedFilters}
 - [ ] `rpt_order`가 0부터 10까지 정상 표시된다.
 - [ ] `vid_list`가 comma-separated 숫자 문자열로 표시된다.
 - [ ] 필터 없이 자동 조회되지 않는다.
+- [ ] `rpt_order` 컬럼 정렬이 정상 동작한다.
+- [ ] `vid_list` 셀 복사가 정상 동작한다.
+- [ ] 공유 URL로 같은 CEID 매핑 상태가 열린다.
 
-## 11. Notes For Company AI Agent
+### URL / Sort / Copy
+
+- [ ] URL query에 draft 필터가 아니라 applied 필터가 반영된다.
+- [ ] `조회` 전 필터 변경은 URL에 반영되지 않는다.
+- [ ] 정렬 상태가 URL에 반영된다.
+- [ ] 페이지 번호가 `table_page`로 반영된다.
+- [ ] 셀 복사 시 plain text만 클립보드에 들어간다.
+
+## 14. Notes For Company AI Agent
 
 기존 프로젝트 스타일을 우선한다.
 
@@ -265,3 +402,7 @@ GET /api/v1/tables/{table_name}/download?format=csv&{appliedFilters}
 대용량 테이블은 반드시 조회 버튼을 통해 조건 확정 후 호출한다.
 
 서버 페이지네이션을 사용하고, 전체 데이터를 프론트에 받아서 자르지 않는다.
+
+정렬은 실제 API 연결 시 서버 정렬로 전환한다.
+
+URL query에는 보안상 남겨도 되는 값만 넣는다.

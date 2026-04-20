@@ -181,22 +181,37 @@
           <div class="w-full overflow-hidden rounded-lg border border-white/[0.08] bg-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
             <div class="overflow-auto" :class="filteredRequests.length >= 30 ? 'max-h-[640px]' : ''">
               <div class="grid min-w-[1640px] gap-4 border-b border-white/[0.08] bg-white/[0.04] px-5 py-3 text-[12px] font-semibold text-[#8B94A5]" :style="activeTableGridStyle">
-                <div v-for="column in activeTableColumns" :key="column.key" :class="[column.align === 'right' ? 'text-right' : '', column.sticky ? 'sticky left-0 z-20 -ml-5 pl-5 pr-4' : '']">{{ column.label }}</div>
+                <div v-for="column in activeTableColumns" :key="column.key" :class="[column.align === 'right' ? 'text-right' : '', column.sticky ? 'sticky left-0 z-20 -ml-5 pl-5 pr-4' : '']">
+                  <button type="button" class="inline-flex max-w-full items-center gap-1.5 rounded-md px-1.5 py-1 text-left transition-colors hover:bg-white/[0.06] hover:text-white" :class="column.align === 'right' ? 'ml-auto' : ''" @click="toggleSort(column.key)">
+                    <span class="truncate">{{ column.label }}</span>
+                    <Icon v-if="sortBy === column.key && sortOrder === 'asc'" icon="lucide:arrow-up" class="h-3.5 w-3.5 flex-shrink-0 text-accent" />
+                    <Icon v-else-if="sortBy === column.key && sortOrder === 'desc'" icon="lucide:arrow-down" class="h-3.5 w-3.5 flex-shrink-0 text-accent" />
+                    <Icon v-else icon="lucide:arrow-up-down" class="h-3.5 w-3.5 flex-shrink-0 text-[#5F6878]" />
+                  </button>
+                </div>
               </div>
 
               <div v-if="filteredRequests.length" class="min-w-[1640px] divide-y divide-white/[0.06]">
                 <article v-for="request in paginatedRequests" :key="request.id" class="grid gap-4 px-5 py-4 transition-colors hover:bg-white/[0.035]" :style="activeTableGridStyle">
                   <div v-for="column in activeTableColumns" :key="column.key" class="flex min-w-0 items-center text-sm" :class="[column.align === 'right' ? 'justify-end text-right' : '', column.sticky ? 'sticky left-0 z-10 -ml-5 pl-5 pr-4' : '']">
                     <template v-if="column.sticky">
-                      <div class="flex min-h-[48px] min-w-0 items-center">
+                      <div class="group/cell flex min-h-[48px] min-w-0 items-center gap-2">
                         <div class="truncate font-semibold text-white">{{ request[column.key] }}</div>
+                        <button type="button" class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md border border-white/[0.08] bg-white/[0.04] text-[#8B94A5] opacity-0 transition-all hover:border-accent/40 hover:text-accent group-hover/cell:opacity-100" :aria-label="`${column.label} 복사`" @click="copyCell(request[column.key], request.id, column.key)">
+                          <Icon :icon="copiedCellKey === `${request.id}-${column.key}` ? 'lucide:check' : 'lucide:copy'" class="h-3.5 w-3.5" />
+                        </button>
                       </div>
                     </template>
                     <template v-else-if="column.key === 'status'">
                       <span class="rounded-full px-2.5 py-1 text-[12px] font-semibold" :class="statusClass(request.status)">{{ request.status }}</span>
                     </template>
                     <template v-else>
-                      <span class="truncate text-[#C4C9D4]">{{ request[column.key] }}</span>
+                      <div class="group/cell flex min-w-0 items-center gap-2" :class="column.align === 'right' ? 'justify-end' : ''">
+                        <span class="truncate text-[#C4C9D4]">{{ request[column.key] }}</span>
+                        <button type="button" class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md border border-white/[0.08] bg-white/[0.04] text-[#8B94A5] opacity-0 transition-all hover:border-accent/40 hover:text-accent group-hover/cell:opacity-100" :aria-label="`${column.label} 복사`" @click="copyCell(request[column.key], request.id, column.key)">
+                          <Icon :icon="copiedCellKey === `${request.id}-${column.key}` ? 'lucide:check' : 'lucide:copy'" class="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </template>
                   </div>
                 </article>
@@ -269,6 +284,9 @@ const activeMenuId = ref(props.dashboardMenu)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const pageSizeOptions = [5, 10, 20, 50]
+const sortBy = ref('')
+const sortOrder = ref('asc')
+const copiedCellKey = ref('')
 
 watch(
   () => props.dashboardMenu,
@@ -276,6 +294,8 @@ watch(
     if (dashboardMenus.some((menu) => menu.id === menuId)) {
       activeMenuId.value = menuId
       openFilterId.value = null
+      currentPage.value = 1
+      syncDashboardUrl()
     }
   },
 )
@@ -496,11 +516,31 @@ const filteredRequests = computed(() => {
   })
 })
 
+const sortedRequests = computed(() => {
+  if (!sortBy.value) return filteredRequests.value
+
+  return [...filteredRequests.value].sort((left, right) => {
+    const leftValue = left[sortBy.value]
+    const rightValue = right[sortBy.value]
+    const direction = sortOrder.value === 'asc' ? 1 : -1
+
+    if (leftValue == null && rightValue == null) return 0
+    if (leftValue == null) return -1 * direction
+    if (rightValue == null) return 1 * direction
+
+    if (typeof leftValue === 'number' && typeof rightValue === 'number') {
+      return (leftValue - rightValue) * direction
+    }
+
+    return String(leftValue).localeCompare(String(rightValue), 'ko', { numeric: true }) * direction
+  })
+})
+
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredRequests.value.length / pageSize.value)))
 
 const paginatedRequests = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
-  return filteredRequests.value.slice(start, start + pageSize.value)
+  return sortedRequests.value.slice(start, start + pageSize.value)
 })
 
 const pageStart = computed(() => {
@@ -529,6 +569,8 @@ watch(totalPages, (pages) => {
   }
 })
 
+watch([activeMenuId, currentPage, pageSize, sortBy, sortOrder], syncDashboardUrl)
+
 const metrics = computed(() => [
   activeMenuId.value === 'priority'
     ? { label: '전체 CEID', value: ceRequests.length }
@@ -537,7 +579,7 @@ const metrics = computed(() => [
     ? { label: 'RPT 10', value: ceRequests.filter((request) => request.rpt === 10).length }
     : { label: '정상', value: requests.filter((request) => request.status === '정상').length },
   activeMenuId.value === 'priority'
-    ? { label: 'LINE 수', value: new Set(ceRequests.map((request) => request.lineId)).size }
+    ? { label: 'EQP 수', value: new Set(ceRequests.map((request) => request.eqpId)).size }
     : { label: '점검 필요', value: requests.filter((request) => request.status !== '정상').length },
 ])
 
@@ -558,6 +600,8 @@ const insights = [
     description: '주의, 점검중, 지연 상태 설비를 우선 확인해 로그 다운로드와 원인 분석으로 연결합니다.',
   },
 ]
+
+restoreDashboardFromUrl()
 
 function toggleFilterPanel(filterId) {
   openFilterId.value = openFilterId.value === filterId ? null : filterId
@@ -613,6 +657,7 @@ function clearFilters() {
     filterSearch[key] = ''
   })
   currentPage.value = 1
+  syncDashboardUrl()
 }
 
 function applyFilters() {
@@ -621,10 +666,118 @@ function applyFilters() {
   })
   currentPage.value = 1
   openFilterId.value = null
+  syncDashboardUrl()
 }
 
 function goToPage(page) {
   currentPage.value = Math.min(Math.max(page, 1), totalPages.value)
+}
+
+function toggleSort(columnKey) {
+  if (sortBy.value !== columnKey) {
+    sortBy.value = columnKey
+    sortOrder.value = 'asc'
+  } else if (sortOrder.value === 'asc') {
+    sortOrder.value = 'desc'
+  } else {
+    sortBy.value = ''
+    sortOrder.value = 'asc'
+  }
+
+  currentPage.value = 1
+  syncDashboardUrl()
+}
+
+async function copyCell(value, rowId, columnKey) {
+  const text = String(value ?? '')
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text)
+    } else {
+      const input = document.createElement('textarea')
+      input.value = text
+      input.setAttribute('readonly', '')
+      input.style.position = 'fixed'
+      input.style.opacity = '0'
+      document.body.appendChild(input)
+      input.select()
+      document.execCommand('copy')
+      document.body.removeChild(input)
+    }
+
+    copiedCellKey.value = `${rowId}-${columnKey}`
+    window.setTimeout(() => {
+      if (copiedCellKey.value === `${rowId}-${columnKey}`) {
+        copiedCellKey.value = ''
+      }
+    }, 1400)
+  } catch {
+    copiedCellKey.value = ''
+  }
+}
+
+function restoreDashboardFromUrl() {
+  const params = new URLSearchParams(window.location.search)
+  const menu = params.get('menu')
+  const restoredPage = Number(params.get('table_page'))
+  const restoredPageSize = Number(params.get('page_size'))
+  const restoredSortBy = params.get('sort_by')
+  const restoredSortOrder = params.get('sort_order')
+
+  if (menu && dashboardMenus.some((item) => item.id === menu)) {
+    activeMenuId.value = menu
+  }
+
+  if (pageSizeOptions.includes(restoredPageSize)) {
+    pageSize.value = restoredPageSize
+  }
+
+  if (Number.isInteger(restoredPage) && restoredPage > 0) {
+    currentPage.value = restoredPage
+  }
+
+  if (restoredSortBy && activeTableColumns.value.some((column) => column.key === restoredSortBy)) {
+    sortBy.value = restoredSortBy
+    sortOrder.value = restoredSortOrder === 'desc' ? 'desc' : 'asc'
+  }
+
+  Object.keys(selectedFilters).forEach((key) => {
+    const value = params.get(`filter_${key}`)
+    if (!value) return
+
+    const values = value.split(',').map((item) => item.trim()).filter(Boolean)
+    selectedFilters[key].splice(0, selectedFilters[key].length, ...values)
+    appliedFilters[key].splice(0, appliedFilters[key].length, ...values)
+  })
+}
+
+function syncDashboardUrl() {
+  const params = new URLSearchParams(window.location.search)
+
+  params.set('page', 'dashboard')
+  params.set('menu', activeMenuId.value)
+  params.set('table_page', String(currentPage.value))
+  params.set('page_size', String(pageSize.value))
+
+  if (sortBy.value) {
+    params.set('sort_by', sortBy.value)
+    params.set('sort_order', sortOrder.value)
+  } else {
+    params.delete('sort_by')
+    params.delete('sort_order')
+  }
+
+  Object.keys(appliedFilters).forEach((key) => {
+    if (appliedFilters[key].length) {
+      params.set(`filter_${key}`, appliedFilters[key].join(','))
+    } else {
+      params.delete(`filter_${key}`)
+    }
+  })
+
+  const query = params.toString()
+  window.history.replaceState({}, '', `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`)
 }
 
 function escapeCsvValue(value) {

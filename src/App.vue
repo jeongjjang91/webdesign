@@ -44,11 +44,38 @@ import SecuritySection from './components/SecuritySection.vue'
 import CTASection from './components/CTASection.vue'
 import TheFooter from './components/TheFooter.vue'
 
-const currentPage = ref('home')
+const initialParams = new URLSearchParams(window.location.search)
+const initialPage = pageMapValue(initialParams.get('page'))
+const initialDashboardMenu = initialParams.get('menu') || 'requests'
+
+const currentPage = ref(initialPage)
 const chatInitialPrompt = ref('')
 const chatSessionKey = ref(0)
-const dashboardMenu = ref('requests')
+const dashboardMenu = ref(initialDashboardMenu)
 const isSidebarCollapsed = ref(false)
+
+function pageMapValue(page) {
+  return page || 'home'
+}
+
+function syncAppUrl() {
+  const params = new URLSearchParams(window.location.search)
+
+  if (currentPage.value === 'home') {
+    params.delete('page')
+  } else {
+    params.set('page', currentPage.value)
+  }
+
+  if (currentPage.value === 'dashboard') {
+    params.set('menu', dashboardMenu.value)
+  } else {
+    params.delete('menu')
+  }
+
+  const query = params.toString()
+  window.history.replaceState({}, '', `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`)
+}
 
 function toggleSidebar() {
   isSidebarCollapsed.value = !isSidebarCollapsed.value
@@ -64,6 +91,7 @@ function navigateTo(page, initialPrompt = '') {
     chatSessionKey.value += 1
   }
   currentPage.value = page
+  syncAppUrl()
 }
 
 const HomePage = defineComponent({
