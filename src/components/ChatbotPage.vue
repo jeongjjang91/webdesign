@@ -40,7 +40,15 @@
 
         <!-- Bubble -->
         <div
-          v-if="!(msg.role === 'assistant' && msg.streaming && !msg.content)"
+          v-if="msg.role === 'assistant' && msg.streaming && !msg.content"
+          class="thinking-indicator"
+          role="status"
+          aria-live="polite"
+        >
+          <span>생각하는 중이에요...</span>
+        </div>
+        <div
+          v-else
           class="max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed"
           :class="msg.role === 'user'
             ? 'bg-[#123B52] text-white rounded-tr-sm border border-sky-400/10'
@@ -561,6 +569,35 @@ function downloadCsv(csvContent) {
 @keyframes bot-avatar-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+.thinking-indicator {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 0.65rem;
+  min-height: 2.5rem;
+  border-radius: 8px;
+  padding: 0.35rem 0.85rem 0.35rem 0.35rem;
+  background: linear-gradient(90deg, #F4F7FB 0%, #F4F7FB 22%, #22D3EE 34%, #F4F7FB 46%, #F4F7FB 50%, #F4F7FB 72%, #22D3EE 84%, #F4F7FB 96%, #F4F7FB 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  animation: thinking-text-flow 2.1s linear infinite;
+}
+
+@keyframes thinking-text-flow {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
   }
 }
 

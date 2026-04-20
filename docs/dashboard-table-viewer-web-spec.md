@@ -656,6 +656,115 @@ Mobile:
 - Keyboard users should be able to select table, enter filters, trigger search, move pagination, and trigger download.
 - Do not rely on color alone to indicate disabled or error states.
 
+## 14.1 Chat Thinking Indicator
+
+The chatbot page includes a lightweight thinking indicator for the short moment between creating an assistant streaming message and receiving the first visible token.
+
+Purpose:
+
+- Avoid showing an empty assistant bubble.
+- Make the assistant feel responsive immediately after the user sends a message.
+- Keep the UI aligned with the dark TC Assistant theme.
+
+Display text:
+
+```text
+생각하는 중이에요...
+```
+
+Final visual direction:
+
+- Text only.
+- No circular orb.
+- No decorative card or large loading container.
+- Soft White text with a Bright Cyan moving highlight.
+- Gradient flow moves from left to right.
+- The gradient loop should not visibly snap or cut at the repeat point.
+
+Color tokens:
+
+```text
+Soft White: #F4F7FB
+Bright Cyan: #22D3EE
+```
+
+Current implementation behavior:
+
+```text
+User sends message
+-> assistant streaming message is created
+-> if assistant content is still empty, show thinking indicator
+-> once first content appears, hide thinking indicator and show normal assistant bubble
+```
+
+Vue template condition:
+
+```vue
+<div
+  v-if="msg.role === 'assistant' && msg.streaming && !msg.content"
+  class="thinking-indicator"
+  role="status"
+  aria-live="polite"
+>
+  <span>생각하는 중이에요...</span>
+</div>
+```
+
+Normal assistant bubble should use `v-else` after the thinking indicator so empty streaming content does not create an empty bubble.
+
+Recommended CSS:
+
+```css
+.thinking-indicator {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 0.65rem;
+  min-height: 2.5rem;
+  border-radius: 8px;
+  padding: 0.35rem 0.85rem 0.35rem 0.35rem;
+  background: linear-gradient(
+    90deg,
+    #F4F7FB 0%,
+    #F4F7FB 22%,
+    #22D3EE 34%,
+    #F4F7FB 46%,
+    #F4F7FB 50%,
+    #F4F7FB 72%,
+    #22D3EE 84%,
+    #F4F7FB 96%,
+    #F4F7FB 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  animation: thinking-text-flow 2.1s linear infinite;
+}
+
+@keyframes thinking-text-flow {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+```
+
+Implementation notes:
+
+- The first version used a gradient circular orb, but it was removed by product decision.
+- The text color was changed from purple-blue to the TC Assistant-friendly Soft White/Bright Cyan combination.
+- The gradient direction was reversed so the highlight reads left-to-right.
+- The gradient pattern was made symmetrical and longer to reduce visible looping discontinuity.
+- Keep `letter-spacing: 0` to match the UI typography rules.
+- Keep `role="status"` and `aria-live="polite"` for assistive technology.
+
 ## 15. Implementation Steps for AI Agent
 
 Follow these steps in order.

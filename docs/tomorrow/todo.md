@@ -16,6 +16,7 @@
 - URL query 상태 복원
 - 컬럼 정렬
 - 셀 값 복사
+- 챗봇 thinking indicator
 
 ## 1. Start From The Spec
 
@@ -327,7 +328,74 @@ GET /api/v1/tables/TC_EQP_RELINK?page=1&page_size=50&EQP_ID=ABC123&sort_by=rpt_o
 - null 값은 빈 문자열로 처리한다.
 - 범위 복사는 이번 범위에 포함하지 않는다.
 
-## 12. Implementation Checklist
+## 12. Chat Thinking Indicator
+
+챗봇 응답이 시작되었지만 아직 첫 글자가 표시되기 전에는 thinking indicator를 보여준다.
+
+최종 문구:
+
+```text
+생각하는 중이에요...
+```
+
+최종 디자인:
+
+- 텍스트만 표시한다.
+- 동그란 orb는 사용하지 않는다.
+- 별도 카드처럼 크게 감싸지 않는다.
+- Soft White와 Bright Cyan 조합을 사용한다.
+- 그라데이션 하이라이트가 왼쪽에서 오른쪽으로 흐르는 느낌을 준다.
+- 애니메이션이 반복될 때 끊기는 느낌이 없도록 대칭 그라데이션을 사용한다.
+
+색상:
+
+```text
+Soft White: #F4F7FB
+Bright Cyan: #22D3EE
+```
+
+표시 조건:
+
+```text
+assistant message
+streaming === true
+content가 비어 있음
+```
+
+흐름:
+
+```text
+사용자 메시지 전송
+-> assistant streaming 메시지 생성
+-> content가 비어 있으면 "생각하는 중이에요..." 표시
+-> 첫 token/content가 들어오면 일반 assistant bubble로 전환
+```
+
+접근성:
+
+```text
+role="status"
+aria-live="polite"
+```
+
+CSS 핵심:
+
+```text
+background-clip: text
+color: transparent
+linear-gradient(Soft White, Bright Cyan, Soft White)
+background-position 100% -> 0%
+animation duration: 2.1s
+letter-spacing: 0
+```
+
+구현 주의:
+
+- 기존 assistant bubble이 빈 상태로 렌더링되지 않게 `v-if` / `v-else` 구조를 사용한다.
+- 스트리밍 첫 글자가 나오면 thinking indicator는 사라져야 한다.
+- 로딩 orb, bokeh, 별도 장식 요소는 추가하지 않는다.
+
+## 13. Implementation Checklist
 
 - [ ] 회사 프로젝트의 대시보드 컴포넌트 위치 확인
 - [ ] 사이드바 또는 탭 메뉴 순서 변경
@@ -349,11 +417,15 @@ GET /api/v1/tables/TC_EQP_RELINK?page=1&page_size=50&EQP_ID=ABC123&sort_by=rpt_o
 - [ ] 실제 API 버전에서는 sort_by/sort_order를 서버로 전달
 - [ ] 셀 값 복사 버튼 추가
 - [ ] 복사 성공 피드백 추가
+- [ ] 챗봇 streaming 시작 시 thinking indicator 표시
+- [ ] thinking indicator가 첫 content 수신 후 사라지는지 확인
+- [ ] Soft White/Bright Cyan 그라데이션 방향 확인
+- [ ] thinking indicator 접근성 속성 확인
 - [ ] 빈 결과, 로딩, 에러 상태 확인
 - [ ] 모바일에서 테이블 가로 스크롤 확인
 - [ ] 빌드 실행
 
-## 13. Manual Test Cases
+## 14. Manual Test Cases
 
 ### TC_EQUIPMENT
 
@@ -391,7 +463,16 @@ GET /api/v1/tables/TC_EQP_RELINK?page=1&page_size=50&EQP_ID=ABC123&sort_by=rpt_o
 - [ ] 페이지 번호가 `table_page`로 반영된다.
 - [ ] 셀 복사 시 plain text만 클립보드에 들어간다.
 
-## 14. Notes For Company AI Agent
+### Chat Thinking Indicator
+
+- [ ] 사용자 메시지 전송 직후 `생각하는 중이에요...`가 표시된다.
+- [ ] 첫 응답 글자가 나오면 thinking indicator가 사라진다.
+- [ ] 동그란 orb가 표시되지 않는다.
+- [ ] 그라데이션 하이라이트가 왼쪽에서 오른쪽으로 흐른다.
+- [ ] 애니메이션 반복 지점이 눈에 띄게 끊기지 않는다.
+- [ ] 다크 UI에서 텍스트가 충분히 읽힌다.
+
+## 15. Notes For Company AI Agent
 
 기존 프로젝트 스타일을 우선한다.
 
@@ -406,3 +487,5 @@ GET /api/v1/tables/TC_EQP_RELINK?page=1&page_size=50&EQP_ID=ABC123&sort_by=rpt_o
 정렬은 실제 API 연결 시 서버 정렬로 전환한다.
 
 URL query에는 보안상 남겨도 되는 값만 넣는다.
+
+챗봇 thinking indicator는 텍스트 중심으로 유지하고, 장식용 orb를 다시 추가하지 않는다.
